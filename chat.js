@@ -29,12 +29,13 @@ var Connection = klass(function (settings){
     if (server && new Date() < server.expires){
 
       return new Promise(function(resolve,reject){
-        // this.ws = new WebSocket(server.url);
-        // this.ws.onopen = function () {
-        //   console.log("onopen")
-        //   resolve(this);
-        // }
-        resolve(this);
+        console.log("new websocket"+server.server)
+        this.ws = new WebSocket(server.server);
+        this.ws.onopen = function () {
+          console.log("onopen")
+          resolve(this);
+        }
+        // resolve(this);
       });
 
 
@@ -67,7 +68,7 @@ var Chat = klass(function(peerId){
       var con = new Connection();
       con.connect().then(function(){
         console.log("connected")
-      })
+      });
 
 
       Chat.prototype.con = con;
@@ -113,5 +114,5 @@ function get(url) {
 }
 // var con = new Connection();
 var chat = new Chat(1);
-var chat = new Chat(2);
+// var chat = new Chat(2);
 // getServerInfo();
