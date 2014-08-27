@@ -12,26 +12,40 @@ var Connection = klass(function (settings){
 }).methods({
   initialize: function(){
     console.log("initialize Connection")
-    getServerInfo().then(function(result){
-      console.log(result);
-      this.serverInfo= JSON.parse(result);
-      this._connect(this.serverInfo.server);
-    }.bind(this));
+    // getServerInfo().then(function(result){
+    //   console.log(result);
+    //   this.serverInfo= JSON.parse(result);
+    //   this._connect(this.serverInfo.server);
+    // }.bind(this));
   },
-  serverURL: function () {
-    console.log("serverURL")
-        var server = this._settings.server
-        if (server && new Date() < server.expires) return server.url
-        else return null
+  _getServerInfo: function(){
+    var url = 'http://router.g0.push.avoscloud.com/v1/route?appId=28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl&secure=1';
+    return get(url);
   },
-  _connect: function(url){
-    var ws = new WebSocket(url)
-    ws.onopen = function () {
-      console.log("open")
+  connect: function(){
+    console.log("connect")
+    var server = this.server
+    console.log(server)
+    if (server && new Date() < server.expires){
+
+      return new Promise(function(resolve,reject){
+        // this.ws = new WebSocket(server.url);
+        // this.ws.onopen = function () {
+        //   console.log("onopen")
+        //   resolve(this);
+        // }
+        resolve(this);
+      });
+
+
+    }else{
+      return this._getServerInfo().then(function(result){
+        this.server = JSON.parse(result);
+        this.server.expires = Date.now() + this.server .ttl * 1000;
+        return this.connect();
+      }.bind(this))
     }
-    ws.onclose = function (evt) {
-    }.bind(this)
-    this._ws = ws;
+
   }
 });
 
@@ -50,7 +64,13 @@ var Chat = klass(function(peerId){
 }).methods({
   initialize: function(){
     if(!Chat.prototype.con){
-      Chat.prototype.con = new Connection();
+      var con = new Connection();
+      con.connect().then(function(){
+        console.log("connected")
+      })
+
+
+      Chat.prototype.con = con;
     }
     // this.connect();
   },
@@ -60,10 +80,7 @@ var Chat = klass(function(peerId){
   }
 });
 
-function getServerInfo(){
-  var url = 'http://router.g0.push.avoscloud.com/v1/route?appId=28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl&secure=1';
-  return get(url);
-}
+
 
 function get(url) {
   // Return a new promise.
