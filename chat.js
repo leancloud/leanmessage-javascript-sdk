@@ -1,19 +1,21 @@
 var klass = require('klass');
-var ajax = require('ajax');
+// var ajax = require('ajax');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var WebSocket = require('ws');
-var Promise = require('es6-promise').Promise
+var Promise = require('es6-promise').Promise;
+var EventEmitter = require('events').EventEmitter;
 
-
-var WebClient = klass(function (){
+module.exports.WebClient = klass(function (){
   console.log("Connection" )
 }).methods({
   initialize: function(settings){
     this._settings = settings || {};
+    this.penddingMsg = [];
     console.log("initialize Connection");
     this._connect().then(function(){
       this._openSession()
     }.bind(this));
+    this.emititer = new EventEmitter();
   },
   _getServerInfo: function(appId){
     var url = 'http://router.g0.push.avoscloud.com/v1/route?appId='+appId+'&secure=1';
@@ -32,8 +34,13 @@ var WebClient = klass(function (){
           resolve(this);
         }
         this.ws.onmessage = function(message){
-          console.log("onmessage",message)
-        }
+          console.log("onmessage",message.data)
+          var data = JSON.parse(message.data);
+          console.log(data,data['peerId'])
+          if(data.op == 'opened'){
+            this.emititer.emit('sessionOpened',data.peerId)
+          }
+        }.bind(this);
         // resolve(this);
       }.bind(this));
     }else{
@@ -56,8 +63,12 @@ var WebClient = klass(function (){
     this.ws.send(s)
     console.log("send"+s)
   },
-  sendMsg: function(msg) {
+  send: function(msg) {
 
+  },
+  on: function(name,func){
+    console.log('on',this.emititer)
+    this.emititer.on(name,func)
   }
 });
 
@@ -94,12 +105,7 @@ function get(url) {
   });
 }
 // var con = new Connection();
-var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
-var peerId = 'abc'
-var chat = new WebClient({
-  appId: appid,
-  peerId: peerId
-});
+
 // var chat = new Chat(2);
 // getServerInfo();
 

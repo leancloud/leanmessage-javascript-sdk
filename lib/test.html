@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script src="chat.js"></script>
+  <script src="test.js"></script>
+  <script>
+ // console.log(exports)
+  var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
+var peerId = 'abc'
+
+
+var chat = new WebClient.WebClient({
+  appId: appid,
+  peerId: peerId
+});
+
+
+
+// chat.send('a').then();
+chat.on('sessionOpened',function(){
+  console.log('sessionOpened')
+})
+
+
+// var a =require('a')
+</script>
+</head>
+<body>
+
+</body>
+</html>
