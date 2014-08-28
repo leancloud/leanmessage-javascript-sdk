@@ -5,29 +5,25 @@ var WebSocket = require('ws');
 var Promise = require('es6-promise').Promise
 
 
-var Connection = klass(function (settings){
-
-  console.log("Connection")
-
+var WebClient = klass(function (){
+  console.log("Connection" )
 }).methods({
-  initialize: function(){
-    console.log("initialize Connection")
-    // getServerInfo().then(function(result){
-    //   console.log(result);
-    //   this.serverInfo= JSON.parse(result);
-    //   this._connect(this.serverInfo.server);
-    // }.bind(this));
+  initialize: function(settings){
+    this._settings = settings || {};
+    console.log("initialize Connection");
+    this._connect().then(function(){
+      this._openSession()
+    }.bind(this));
   },
-  _getServerInfo: function(){
-    var url = 'http://router.g0.push.avoscloud.com/v1/route?appId=28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl&secure=1';
+  _getServerInfo: function(appId){
+    var url = 'http://router.g0.push.avoscloud.com/v1/route?appId='+appId+'&secure=1';
     return get(url);
   },
-  connect: function(){
+  _connect: function(){
     console.log("connect")
     var server = this.server
     console.log(server)
     if (server && new Date() < server.expires){
-
       return new Promise(function(resolve,reject){
         console.log("new websocket"+server.server)
         this.ws = new WebSocket(server.server);
@@ -35,51 +31,36 @@ var Connection = klass(function (settings){
           console.log("onopen")
           resolve(this);
         }
+        this.ws.onmessage = function(message){
+          console.log("onmessage",message)
+        }
         // resolve(this);
-      });
-
-
+      }.bind(this));
     }else{
-      return this._getServerInfo().then(function(result){
+      return this._getServerInfo(this._settings.appId).then(function(result){
         this.server = JSON.parse(result);
         this.server.expires = Date.now() + this.server .ttl * 1000;
-        return this.connect();
+        return this._connect();
       }.bind(this))
     }
-
-  }
-});
-
-var Chat = klass(function(peerId){
-  settings = settings || {};
-  this._settings = {
-      appId: settings.appId,
-      peerId: settings.peerId,
-      sp: settings.sp || false,
-      auth: settings.auth,
-      secure: settings.secure !== undefined ? !!settings.secure : true,
-      keepAlive: settings.keepAlive >= 3000 ? 0|settings.keepAlive : 240 * 1000, // 4 minutes
-      server: settings.server,
-  }
-  console.log("chat")
-}).methods({
-  initialize: function(){
-    if(!Chat.prototype.con){
-      var con = new Connection();
-      con.connect().then(function(){
-        console.log("connected")
-      });
-
-
-      Chat.prototype.con = con;
-    }
-    // this.connect();
   },
-
-  open: function() {
+  _openSession: function() {
+    console.log("_openSession")
+    var msg = {"cmd": "session",
+         "op": "open",
+         "sessionPeerIds": ["..."],
+         "peerId": this._settings.peerId,
+         "appId": this._settings.appId
+         }
+    var s = JSON.stringify(msg)
+    this.ws.send(s)
+    console.log("send"+s)
+  },
+  sendMsg: function(msg) {
 
   }
 });
+
 
 
 
@@ -113,6 +94,12 @@ function get(url) {
   });
 }
 // var con = new Connection();
-var chat = new Chat(1);
+var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
+var peerId = 'abc'
+var chat = new WebClient({
+  appId: appid,
+  peerId: peerId
+});
 // var chat = new Chat(2);
 // getServerInfo();
+
