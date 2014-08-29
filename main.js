@@ -6,8 +6,8 @@ var chat = new WebClient({
   peerId: peerId
 });
 chat.open();
-chat.open();
-chat.open();
+// chat.open();
+// chat.open();
 chat.on('opened',function(data){
   console.log('sessionOpened',data)
   chat.send("abc1",'s').then(function(msg){
