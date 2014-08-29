@@ -57,7 +57,7 @@ function WebClient (settings) {
             }
           }
           var cmd = data.op? data.cmd + data.op:data.cmd;
-          if ( _waitCommands.length > 0 && this._waitCommands[0][0] === cmd) {
+          if ( _waitCommands.length > 0 && _waitCommands[0][0] === cmd) {
             _waitCommands.shift()[1](data);
           }
         };
@@ -80,7 +80,7 @@ function WebClient (settings) {
          }
     var s = JSON.stringify(msg)
     ws.send(s);
-    return this._wait('sessionopened');
+    return _wait('sessionopened');
   }
   function _wait (command) {
     return new Promise(function (resolve, reject) {
@@ -91,10 +91,10 @@ function WebClient (settings) {
     if(connectionStatus == 'connecting'){
       return Promise.reject('connecting');
     }else if(connectionStatus == 'connected'){
-      return Promise.resolve(server);
+      return Promise.resolve();
     }
     return _connect().then(function(){
-      return _openSession()
+      return _openSession();
     });
   };
   this.send = function(msg,to) {

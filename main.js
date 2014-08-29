@@ -3,7 +3,7 @@ var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
 var peerId = 'abc'
 
 
-var arr = ['a' ,'b' ]
+var arr = ['a'  ]
 arr.forEach(function(peer,index){
   var t = arr.slice(0);
   t.splice(index,1);
@@ -16,7 +16,16 @@ function createChat(peerId,peers){
     peerId: peerId,
     peerIds: peers
   });
-  chat.open();
+  chat.open().then(function(data){
+    console.log('opened---',data)
+  },function(data){
+    console.log('open rejected',data)
+  });
+  chat.open().then(function(data){
+    console.log('opened1---',data)
+  },function(data){
+    console.log('open1 rejected',data)
+  });
   // chat.open();
   // chat.open();
   // chat.on('initOnlinePeers',function(peers){
