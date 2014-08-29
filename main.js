@@ -5,11 +5,10 @@ var chat = new WebClient({
   appId: appid,
   peerId: peerId
 });
-chat.connect().then(function(){
-  console.log("connected cb");
-  chat.send("abc1",'s')
-})
-chat.on('sessionOpened',function(data){
+chat.open();
+chat.on('opened',function(data){
   console.log('sessionOpened')
+  chat.send("abc1",'s')
+
   console.log(data);
 } )

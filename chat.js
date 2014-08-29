@@ -20,25 +20,31 @@ module.exports.WebClient = klass(function (){
     return get(url);
   },
   _connect: function(){
+
     console.log("connect")
     var server = this.server
     console.log(server)
     if (server && new Date() < server.expires){
       return new Promise(function(resolve,reject){
         console.log("new websocket"+server.server)
+        if(this.connectionStatus == 'connecting' || this.connectionStatus == 'connected'){
+          return Promise.resolve();
+        }
+        this.connectionStatus= 'connecting';
         this.ws = new WebSocket(server.server);
         this.ws.onopen = function () {
+          this.connectionStatus = 'connected';
           console.log("onopen")
           resolve(this);
-        }
+        }.bind(this);
         this.ws.onmessage = function(message){
           console.log("onmessage",message.data)
           var data = JSON.parse(message.data);
           console.log(data,data['peerId'])
-          // if(data.op == 'opened'){
-          //   this.emititer.emit('sessionOpened',data.peerId)
-          // }
-          if (this._waitCommands.length > 0) {
+          if(data.op == 'opened'){
+            this.emititer.emit('opened',data.peerId)
+          }
+          if (data.op == 'ack' && this._waitCommands.length > 0) {
             if (this._waitCommands[0][0] === data.cmd) {
                 this._waitCommands.shift()[1](data)
             }
@@ -64,14 +70,14 @@ module.exports.WebClient = klass(function (){
          }
     var s = JSON.stringify(msg)
     this.ws.send(s);
-    return this._wait('session');
+    // return this._wait('session');
   },
   _wait: function (command) {
     return new Promise(function (resolve, reject) {
       this._waitCommands.push([command, resolve, reject]);
     }.bind(this));
   },
-  connect: function(){
+  open: function(){
     return this._connect().then(function(){
       return this._openSession()
     }.bind(this));
