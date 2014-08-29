@@ -4,8 +4,11 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var WebSocket = require('ws');
 var Promise = require('es6-promise').Promise;
 var EventEmitter = require('events').EventEmitter;
-
-module.exports.WebClient = function (settings) {
+module.exports.WebClient = WebClient;
+function WebClient (settings) {
+  if(this instanceof WebClient == false){
+    return new WebClient(settings)
+  }
   var _emititer, connectionStatus, _settings, _waitCommands, sessionPeerIds, server, ws;
   function initialize (settings){
     if (!settings) throw new Error('settings')
