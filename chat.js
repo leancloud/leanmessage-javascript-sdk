@@ -9,7 +9,7 @@ function WebClient (settings) {
   if(this instanceof WebClient == false){
     return new WebClient(settings)
   }
-  var _emititer, connectionStatus, _settings, _waitCommands, sessionPeerIds, server, ws;
+  var _emitter, connectionStatus, _settings, _waitCommands, peerIds, server, ws;
   function initialize (settings){
     if (!settings) throw new Error('settings')
     if (!settings.appId) throw new Error('settings.appId')
@@ -17,8 +17,8 @@ function WebClient (settings) {
     _settings = settings || {};
     _waitCommands = [];
     console.log("initialize Connection");
-    _emititer = new EventEmitter();
-    sessionPeerIds = [];
+    _emitter = new EventEmitter();
+    peerIds = [];
     connectionStatus= "noconnected";
   }
   initialize(settings);
@@ -27,11 +27,7 @@ function WebClient (settings) {
     return get(url);
   }
   function _connect(){
-    if(connectionStatus == 'connecting'){
-      return Promise.reject();
-    }else if(connectionStatus == 'connected'){
-      return Promise.resolve();
-    }
+
     console.log("connect")
     console.log(server)
     if (server && new Date() < server.expires){
@@ -50,12 +46,18 @@ function WebClient (settings) {
           var data = JSON.parse(message.data);
           console.log(data,data['peerId'])
           if(data.op == 'opened'){
-            _emititer.emit('opened',data)
+            _emitter.emit('opened',data.onlineSessionPeerIds);
+            // _emitter.emit('initOnlinePeers',data.onlineSessionPeerIds);
           }
-          if (data.cmd == 'ack' && _waitCommands.length > 0) {
-            // if (this._waitCommands[0][0] === data.cmd) {
-
-            // }
+          if(data.cmd == 'presence'){
+            if(data.status == 'on'){
+              _emitter.emit('newOnlinePeers',data.sessionPeerIds);
+            }else if(data.status == 'off'){
+              _emitter.emit('newOfflinePeers',data.sessionPeerIds);
+            }
+          }
+          var cmd = data.op? data.cmd + data.op:data.cmd;
+          if ( _waitCommands.length > 0 && this._waitCommands[0][0] === cmd) {
             _waitCommands.shift()[1](data);
           }
         };
@@ -72,13 +74,13 @@ function WebClient (settings) {
     console.log("_openSession")
     var msg = {"cmd": "session",
          "op": "open",
-         "sessionPeerIds": _settings.sessionPeerIds,
+         "sessionPeerIds": _settings.peerIds,
          "peerId": _settings.peerId,
          "appId": _settings.appId
          }
     var s = JSON.stringify(msg)
     ws.send(s);
-    // return this._wait('session');
+    return this._wait('sessionopened');
   }
   function _wait (command) {
     return new Promise(function (resolve, reject) {
@@ -86,25 +88,37 @@ function WebClient (settings) {
     });
   }
   this.open =function(){
+    if(connectionStatus == 'connecting'){
+      return Promise.reject('connecting');
+    }else if(connectionStatus == 'connected'){
+      return Promise.resolve(server);
+    }
     return _connect().then(function(){
       return _openSession()
     });
   };
   this.send = function(msg,to) {
-    var msg = {"cmd": "direct",
-         "op": "open",
-         "sessionPeerIds": [].concat(to),
-         "peerId": _settings.peerId,
-         "appId": _settings.appId
-        }
+    var msg = {
+      "cmd": "direct",
+      "op": "open",
+      "sessionPeerIds": [].concat(to),
+      "peerId": _settings.peerId,
+      "appId": _settings.appId
+    }
     ws.send(JSON.stringify(msg));
-    return _wait('direct');
+    return _wait('ack');
   };
 
   this.on = function(name,func){
-    console.log('on', _emititer)
-    _emititer.on(name,func)
+    console.log('on', _emitter)
+    _emitter.on(name,func)
   };
+
+  this.close = function(){
+
+  }
+
+
 
 };
 
