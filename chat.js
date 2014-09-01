@@ -1,6 +1,6 @@
 // var klass = require('klass');
 // var ajax = require('ajax');
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+XMLHttpRequest = typeof XMLHttpRequest === 'undefined'? require("xmlhttprequest").XMLHttpRequest : XMLHttpRequest;
 var WebSocket = require('ws');
 var Promise = require('es6-promise').Promise;
 var EventEmitter = require('events').EventEmitter;
@@ -27,14 +27,13 @@ function WebClient (settings) {
     return get(url);
   }
   function _connect(){
-
     console.log("connect")
     console.log(server)
     if (server && new Date() < server.expires){
       return new Promise(function(resolve,reject){
         console.log("new websocket"+server.server)
 
-        connectionStatus= 'connecting';
+
         ws = new WebSocket(server.server);
         ws.onopen = function () {
           connectionStatus = 'connected';
@@ -89,10 +88,11 @@ function WebClient (settings) {
   }
   this.open =function(){
     if(connectionStatus == 'connecting'){
-      return Promise.reject('connecting');
+      return Promise.reject('should not call open again while  already call open method');
     }else if(connectionStatus == 'connected'){
       return Promise.resolve();
     }
+    connectionStatus= 'connecting';
     return _connect().then(function(){
       return _openSession();
     });
@@ -131,7 +131,7 @@ function get(url) {
     // Do the usual XHR stuff
     var req = new XMLHttpRequest();
     req.open('GET', url);
-
+    // req.withCredentials = false;
     req.onload = function() {
       // This is called even on 404 etc
       // so check the status

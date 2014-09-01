@@ -5,6 +5,7 @@
   <title>Document</title>
   <script src="chat.js"></script>
   <script src="test.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
   <script>
  // console.log(exports)
   var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
@@ -16,12 +17,12 @@ var chat = new WebClient.WebClient({
   peerId: peerId
 });
 
-
-
+chat.open();
+// $.get('http://router.g0.push.avoscloud.com/v1/route?appId=28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl&secure=1')
 // chat.send('a').then();
-chat.on('sessionOpened',function(){
-  console.log('sessionOpened')
-})
+// chat.on('sessionOpened',function(){
+//   console.log('sessionOpened')
+// })
 
 
 // var a =require('a')
