@@ -4,7 +4,7 @@ XMLHttpRequest = typeof XMLHttpRequest === 'undefined' ? require("xmlhttprequest
 var WebSocket = require('ws');
 var Promise = require('es6-promise').Promise;
 var EventEmitter = require('events').EventEmitter;
-module.exports.WebClient = WebClient;
+module.exports = WebClient;
 
 function WebClient(settings) {
   if (this instanceof WebClient == false) {
@@ -132,9 +132,9 @@ function WebClient(settings) {
       return Promise.reject('can not send msg while not connected');
     }
     var msg = {
+      "msg": msg,
       "cmd": "direct",
-      "op": "open",
-      "sessionPeerIds": [].concat(to),
+      "toPeerIds": [].concat(to),
       "peerId": _settings.peerId,
       "appId": _settings.appId
     }

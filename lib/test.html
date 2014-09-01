@@ -8,16 +8,7 @@
   <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
   <script>
  // console.log(exports)
-  var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
-var peerId = 'abc'
 
-
-var chat = new WebClient.WebClient({
-  appId: appid,
-  peerId: peerId
-});
-
-chat.open();
 // $.get('http://router.g0.push.avoscloud.com/v1/route?appId=28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl&secure=1')
 // chat.send('a').then();
 // chat.on('sessionOpened',function(){
@@ -29,6 +20,62 @@ chat.open();
 </script>
 </head>
 <body>
+昵称<input type="text" id="sender">
+关注者
+<textarea name=""  cols="30" rows="10" id="watchingPeer">
+</textarea>
 
+<button id="start">链接</button>
+<hr>
+消息
+<input type="text" id="msg">
+<button id="sendbtn" >send</button>
+<hr>
+<div id="receiver">
+ <h4>收到的消息</h4>
+</div>
+<hr>
+<div id="status">
+  <h4>状态</h4>
+
+</div>
+<script>
+  var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
+  var peerId = $('#sender').val() || 'testuser'+Math.random();
+  // var watchingPeer = $('#watchingPeer').val().split(',');
+  var chat;
+  $('#start').click(function(){
+    chat = new WebClient({
+      appId: appid,
+      peerId: $('#sender').val() || 'testuser'+Math.random(),
+      watchingPeer: $('#watchingPeer').val().split(',')
+    });
+    chat.open().then(function(){
+      $('#status').append('Opened');
+      $('#status').append('<br>');
+    });
+
+    chat.on('message',function(data){
+      $('#status').append(JSON.stringify(data));
+      $('#status').append('<br>');
+      // console.log(data);
+    });
+    chat.on('onlinePeers', function(data){
+      $('#status').append(JSON.stringify(data));
+      $('#status').append('<br>');
+    })
+  });
+
+
+
+
+
+  $('#sendbtn').click(function(){
+    chat.send($('#msg').val(),$('#watchingPeer').val().split(',')[0]).then(function(){
+      $('#status').append('Msg Sended');
+      $('#status').append('<br>');
+    });
+  })
+</script>
 </body>
 </html>
