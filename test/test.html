@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Message </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <script src="../lib/chat.js"></script>
+
+  <style>
+  .online {
+    border-left: 5px solid green;
+  }
+  .offline{
+    border-left: 5px solid grey;
+  }
+  .online.btn-group>.btn:first-child,.offline.btn-group>.btn:first-child{
+    border-top-left-radius :0;
+    border-bottom-left-radius :0;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Message Test</h2>
+    <p></p>
+    <hr>
+    <h4>Basic</h4>
+    <div class="form-inline" >
+      <div class="form-group">
+        <label for="">peerId: </label>
+        <input type="text" id="sender" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="">watchingPeer: </label>
+        <input type="text " id="watchingPeer" class="form-control">
+      </div>
+      <button id="start" class="btn btn-default"> open </button>
+      <button id="addwatch" class="btn btn-default"> addWatchingPeer </button>
+    </div>
+    <hr>
+    <h4>WatchingPeer</h4>
+    <div id="allwatcher">
+      <!-- Split button -->
+
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Message to <span class="text-muted" id="to-peer-id"></span></h4>
+        <div  class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control" id="msg">
+          </div>
+          <button class="btn btn-default" id="sendbtn">send</button>
+        </div>
+        <div id="allmsg">
+
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h4>Status</h4>
+        <div id="status"></div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+<script type="tpl" id="watcher-tpl">
+<div class="btn-group offline" id="peer-@peerId@">
+  <button type="button" class="btn btn-default">@peerId@</button>
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a onclick="setSendTo('@peerId@')">chat</a></li>
+    <li><a onclick="chat.removeWatchingPeer('@peerId@')">removeWatchingPeer</a></li>
+  </ul>
+</div>
+</script>
+
+
+
+
+<script>
+  var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
+  var peerId = $('#sender').val() || 'testuser'+Math.random();
+  var toPeerId;
+  // var watchingPeer = $('#watchingPeer').val().split(',');
+  var chat;
+  $('#start').click(function(){
+
+    chat = new WebClient({
+      appId: appid,
+      peerId: $('#sender').val() || 'testuser'+Math.random(),
+      watchingPeer: $('#watchingPeer').val().split(',')
+    });
+
+    chat.open().then(function(){
+      $('#allwatcher').empty();
+      addWatchingPeer($('#watchingPeer').val().split(','));
+      $('#status').append('Opened');
+      $('#status').append('<br>');
+    });
+
+    chat.on('message',function(data){
+      $('#allmsg').append(JSON.stringify(data));
+      $('#allmsg').append('<br>');
+      // console.log(data);
+    });
+    chat.on('onlinePeers', function(peers){
+      for(var i=0;i<peers.length;i++){
+        $('#peer-'+peers[i]).removeClass('offline');
+        $('#peer-'+peers[i]).addClass('online');
+      }
+    });
+    chat.on('offlinePeers', function(peers){
+      for(var i=0;i<peers.length;i++){
+        $('#peer-'+peers[i]).removeClass('online');
+        $('#peer-'+peers[i]).addClass('offline');
+      }
+    });
+  });
+
+  $('#addwatch').click(function(){
+
+    chat.addWatchingPeer($('#watchingPeer').val().split(',')).then(function(){
+      addWatchingPeer($('#watchingPeer').val().split(','));
+    },function(){
+
+    });
+  });
+
+  function setSendTo(peerId){
+    toPeerId = peerId;
+    $('#to-peer-id').text(toPeerId);
+  }
+  function addWatchingPeer(peers){
+    for(var i=0;i<peers.length;i++){
+      var str = $('#watcher-tpl').html().replace(/@peerId@/g,peers[i]);
+      $('#allwatcher').append(str);
+    }
+  }
+
+  $('#sendbtn').click(function(){
+    chat.send($('#msg').val(),toPeerId).then(function(){
+      $('#allmsg').append(JSON.stringify({
+        msg: $('#msg').val(),
+        toPeerId: toPeerId
+      }))
+      // $('#status').append('Msg Sended');
+      // $('#status').append('<br>');
+    });
+  })
+</script>
+</body>
+</html>
