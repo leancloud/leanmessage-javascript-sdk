@@ -18,7 +18,6 @@ function WebClient(settings) {
     if (!settings.peerId) throw new Error('settings.peerId')
     _settings = settings || {};
     _waitCommands = [];
-    console.log("initialize Connection");
     _emitter = new EventEmitter();
     watchingPeer = [].concat(settings.watchingPeer);
     connectionStatus = "notconnected";
@@ -36,7 +35,6 @@ function WebClient(settings) {
         ws = new WebSocket(server.server);
         ws.onopen = function() {
           connectionStatus = 'connected';
-          console.log("onopen")
           resolve(server);
         };
         ws.onclose = function() {
@@ -46,9 +44,7 @@ function WebClient(settings) {
           }
         }
         ws.onmessage = function(message) {
-          console.log("onmessage", message.data)
           var data = JSON.parse(message.data);
-          console.log(data, data['peerId'])
           if (data.cmd == 'session') {
             if(data.op == 'opened'){
               _keepAlive();
@@ -94,7 +90,6 @@ function WebClient(settings) {
   }
 
   function _openSession() {
-    console.log("_openSession")
     var msg = {
       "cmd": "session",
       "op": "open",
@@ -161,7 +156,6 @@ function WebClient(settings) {
   };
 
   this.on = function(name, func) {
-    console.log('on', _emitter)
     _emitter.on(name, func)
   };
   this.addWatchingPeer = function(watchingPeer) {
