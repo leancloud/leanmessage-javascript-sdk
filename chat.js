@@ -31,11 +31,8 @@ function WebClient(settings) {
   }
 
   function _connect() {
-    console.log("connect")
-    console.log(server)
     if (server && new Date() < server.expires) {
       return new Promise(function(resolve, reject) {
-        console.log("new websocket" + server.server)
         ws = new WebSocket(server.server);
         ws.onopen = function() {
           connectionStatus = 'connected';
@@ -138,7 +135,7 @@ function WebClient(settings) {
     connectionStatus = 'closed';
     var msg = {
       "cmd": "session",
-      "op": "remove",
+      "op": "close",
       "peerId": _settings.peerId,
       "appId": _settings.appId
     }

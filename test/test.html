@@ -51,20 +51,30 @@
     <hr>
     <div class="row">
       <div class="col-md-6">
-        <h4>Message to <span class="text-muted" id="to-peer-id"></span></h4>
+        <h4>Message to <span class="text-primary" id="to-peer-id"></span></h4>
         <div  class="form-inline">
           <div class="form-group">
             <input type="text" class="form-control" id="msg">
           </div>
           <button class="btn btn-default" id="sendbtn">send</button>
         </div>
-        <div id="allmsg">
+
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Message Sent</h4>
+        <div id="msgsent">
 
         </div>
       </div>
+
       <div class="col-md-6">
-        <h4>Status</h4>
-        <div id="status"></div>
+        <h4>Message Receive</h4>
+        <div id="msgreceive">
+
+        </div>
       </div>
     </div>
 
@@ -72,8 +82,9 @@
 
   </div>
 
-<script type="tpl" id="watcher-tpl">
-<div class="btn-group offline" id="peer-@peerId@">
+
+
+<!-- <div class="btn-group offline" id="peer-@peerId@">
   <button type="button" class="btn btn-default">@peerId@</button>
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     <span class="caret"></span>
@@ -83,7 +94,9 @@
     <li><a onclick="setSendTo('@peerId@')">chat</a></li>
     <li><a onclick="chat.removeWatchingPeer('@peerId@')">removeWatchingPeer</a></li>
   </ul>
-</div>
+</div> -->
+<script type="tpl" id="watcher-tpl">
+<button type="button" class="btn btn-default" id="peer-@peerId@" onclick="setSendTo('@peerId@')">@peerId@</button>
 </script>
 
 
@@ -112,8 +125,8 @@
 
 
     chat.on('message',function(data){
-      $('#allmsg').append(JSON.stringify(data));
-      $('#allmsg').append('<br>');
+      $('#msgreceive').append(JSON.stringify(data));
+      $('#msgreceive').append('<br>');
       // console.log(data);
     });
     chat.on('onlinePeers', function(peers){
@@ -132,17 +145,23 @@
 
   $('#close').click(function(){
     chat.close().then(function(){
-      $('#chat-status').text('not connected')
+      $('#connect-status').text('not connected');
+      $('.online').removeClass('online').addClass('offline');
     });
   })
 
   $('#addwatch').click(function(){
-
+    addWatchingPeer($('#watchingPeer').val().split(','));
     chat.addWatchingPeer($('#watchingPeer').val().split(',')).then(function(){
-      addWatchingPeer($('#watchingPeer').val().split(','));
+
     },function(){
 
     });
+  });
+
+  $('#removewatch').click(function(){
+    removeWatchingPeer($('#watchingPeer').val().split(','));
+    chat.removeWatchingPeer($('#watchingPeer').val().split(','));
   });
 
   function setSendTo(peerId){
@@ -159,16 +178,28 @@
     }
   }
 
+  function removeWatchingPeer(peers){
+    peers = [].concat(peers);
+    for(var i=0;i<peers.length;i++){
+      if(!peers[i]){
+        return;
+      }
+      $('#peer-'+peers[i]).remove();
+    }
+  }
+
   $('#sendbtn').click(function(){
     chat.send($('#msg').val(),toPeerId).then(function(){
-      $('#allmsg').append(JSON.stringify({
+      $('#msgsent').append(JSON.stringify({
         msg: $('#msg').val(),
         toPeerId: toPeerId
-      }))
+      }));
+      $('#msgsent').append('<br>');
+      $('#msg').val('');
       // $('#status').append('Msg Sended');
       // $('#status').append('<br>');
     });
-  })
+  });
 </script>
 </body>
 </html>
