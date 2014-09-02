@@ -53,15 +53,18 @@ function WebClient(settings) {
           var data = JSON.parse(message.data);
           console.log(data, data['peerId'])
           if (data.cmd == 'session') {
-            if (data.op == 'opened') {
+            if(data.op == 'opened'){
+              _keepAlive();
+            }
+            if (data.op == 'opened'||data.op == 'added') {
               _emitter.emit('onlinePeers', data.onlineSessionPeerIds);
             }
 
           } else if (data.cmd == 'presence') {
             if (data.status == 'on') {
-              _emitter.emit('newOnlinePeers', data.sessionPeerIds);
+              _emitter.emit('onlinePeers', data.sessionPeerIds);
             } else if (data.status == 'off') {
-              _emitter.emit('newOfflinePeers', data.sessionPeerIds);
+              _emitter.emit('offlinePeers', data.sessionPeerIds);
             }
           } else if (data.cmd == 'direct') {
             _emitter.emit('message', {
@@ -104,6 +107,14 @@ function WebClient(settings) {
       _waitCommands.push([command, resolve, reject]);
     });
   }
+
+  function _keepAlive(){
+    clearTimeout(_keepAlive.handle);
+    _keepAlive.handle = setTimeout(function(){
+      ws.send('{}');
+      _keepAlive();
+    },1000*60);
+  }
   this.open = function() {
     if (connectionStatus == 'connecting') {
       return Promise.reject('should not call open again while  already call open method');
@@ -131,6 +142,7 @@ function WebClient(settings) {
     if (connectionStatus != 'connected') {
       return Promise.reject('can not send msg while not connected');
     }
+    _keepAlive();
     var msg = {
       "msg": msg,
       "cmd": "direct",
@@ -147,6 +159,11 @@ function WebClient(settings) {
     _emitter.on(name, func)
   };
   this.addWatchingPeer = function(watchingPeer) {
+
+    if(connectionStatus!='connected'){
+      Promise.reject('can not add watchingPeer while not connected');
+    }
+    _keepAlive();
     var msg = {
       "cmd": "session",
       "op": "add",
@@ -158,6 +175,10 @@ function WebClient(settings) {
     return _wait('sessionadded');
   }
   this.removeWatchingPeer = function(watchingPeer) {
+    if(connectionStatus!='connected'){
+      Promise.reject('can not add watchingPeer while not connected');
+    }
+    _keepAlive();
     var msg = {
       "cmd": "session",
       "op": "remove",
@@ -169,6 +190,9 @@ function WebClient(settings) {
     return Promise.resolve();
   }
   this.getPeerStatus = function(watchingPeer) {
+    if(connectionStatus!='connected'){
+      Promise.reject('can not add watchingPeer while not connected');
+    }
     var msg = {
       "cmd": "session",
       "op": "query",
