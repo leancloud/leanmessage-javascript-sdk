@@ -37,7 +37,10 @@
         <input type="text " id="watchingPeer" class="form-control">
       </div>
       <button id="start" class="btn btn-default"> open </button>
+      <button id="close" class="btn btn-warning"> close </button>
+      <span id="connect-status" class="text-primary">not connected</span>
       <button id="addwatch" class="btn btn-default"> addWatchingPeer </button>
+      <button id="removewatch" class="btn btn-default"> removeWatchingPeer </button>
     </div>
     <hr>
     <h4>WatchingPeer</h4>
@@ -99,13 +102,14 @@
       peerId: $('#sender').val() || 'testuser'+Math.random(),
       watchingPeer: $('#watchingPeer').val().split(',')
     });
-
+    $('#allwatcher').empty();
+    addWatchingPeer($('#watchingPeer').val().split(','));
     chat.open().then(function(){
-      $('#allwatcher').empty();
-      addWatchingPeer($('#watchingPeer').val().split(','));
       $('#status').append('Opened');
       $('#status').append('<br>');
+      $('#connect-status').text('connected')
     });
+
 
     chat.on('message',function(data){
       $('#allmsg').append(JSON.stringify(data));
@@ -126,6 +130,12 @@
     });
   });
 
+  $('#close').click(function(){
+    chat.close().then(function(){
+      $('#chat-status').text('not connected')
+    });
+  })
+
   $('#addwatch').click(function(){
 
     chat.addWatchingPeer($('#watchingPeer').val().split(',')).then(function(){
@@ -141,6 +151,9 @@
   }
   function addWatchingPeer(peers){
     for(var i=0;i<peers.length;i++){
+      if(!peers[i]){
+        return;
+      }
       var str = $('#watcher-tpl').html().replace(/@peerId@/g,peers[i]);
       $('#allwatcher').append(str);
     }

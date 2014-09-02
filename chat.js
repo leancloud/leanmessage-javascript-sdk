@@ -45,7 +45,7 @@ function WebClient(settings) {
         ws.onclose = function() {
           connectionStatus = 'closed';
           if (_waitCommands.length > 0 && _waitCommands[0][0] === 'close') {
-            _waitCommands.shift()[1](data);
+            _waitCommands.shift()[1]();
           }
         }
         ws.onmessage = function(message) {
@@ -70,7 +70,15 @@ function WebClient(settings) {
             _emitter.emit('message', {
               msg: data.msg,
               fromPeerId: data.fromPeerId
-            })
+            });
+            var msg = {
+              "cmd": "ack",
+              "peerId": _settings.peerId,
+              "appId": _settings.appId,
+              'ids': [].concat(data.id)
+            }
+            var s = JSON.stringify(msg)
+            ws.send(s);
           }
 
           var cmd = data.op ? data.cmd + data.op : data.cmd;
@@ -129,8 +137,8 @@ function WebClient(settings) {
   this.close = function() {
     connectionStatus = 'closed';
     var msg = {
-      "cmd": "direct",
-      "op": "open",
+      "cmd": "session",
+      "op": "remove",
       "peerId": _settings.peerId,
       "appId": _settings.appId
     }
