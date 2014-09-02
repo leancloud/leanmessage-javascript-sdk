@@ -144,6 +144,7 @@ function WebClient(settings) {
     }
     ws.send(JSON.stringify(msg));
     ws.close();
+    clearTimeout(_keepAlive.handle);
     return _wait('close');
   }
   this.send = function(msg, to) {
