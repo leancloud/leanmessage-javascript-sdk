@@ -10,8 +10,15 @@ function WebClient(settings) {
   if (this instanceof WebClient == false) {
     return new WebClient(settings)
   }
-  var _emitter, connectionStatus, _settings, _waitCommands, watchingPeer, server, ws;
+  var _emitter, connectionStatus, _settings, _waitCommands, watchingPeer, server, ws, keepAliveTimeout;
+  var cmdMap = {
+    'direct': 'ack',
+    'sessionopen': 'sessionopened',
+    'sessionadd': 'sessionadded',
+    'sessionquery': 'sessionquery-result'
+  }
 
+  var timers = [];
   function initialize(settings) {
     if (!settings) throw new Error('settings')
     if (!settings.appId) throw new Error('settings.appId')
@@ -19,6 +26,10 @@ function WebClient(settings) {
     _settings = settings || {};
     _waitCommands = [];
     _emitter = new EventEmitter();
+    keepAliveTimeout = settings.keepAlive  || 10000;
+    if(keepAliveTimeout > 10000){
+      keepAliveTimeout = 10000;
+    }
     watchingPeer = [].concat(settings.watchingPeer);
     connectionStatus = "notconnected";
   }
@@ -34,7 +45,9 @@ function WebClient(settings) {
     if (server && new Date() < server.expires) {
       return new Promise(function(resolve, reject) {
         ws = new WebSocket(server.server);
+        _timeout('connectopen');
         ws.onopen = function() {
+          clearTimeout(timers.shift()[1]);
           connectionStatus = 'connected';
           resolve(server);
         };
@@ -46,14 +59,23 @@ function WebClient(settings) {
         }
         ws.onmessage = function(message) {
           var data = JSON.parse(message.data);
+
+
+          var cmd = data.op ? data.cmd + data.op : data.cmd;
+          if(!cmd){
+            cmd = '{}'
+          }
+          if (_waitCommands.length > 0 && _waitCommands[0][0] === cmd) {
+            _waitCommands.shift()[1](data);
+          }
+          if(timers.length>0 && timers[0][0] == cmd){
+            clearTimeout(timers.shift()[1]);
+          }
+
           if (data.cmd == 'session') {
-            if(data.op == 'opened'){
-              _keepAlive();
-            }
             if (data.op == 'opened'||data.op == 'added') {
               _emitter.emit('onlinePeers', data.onlineSessionPeerIds);
             }
-
           } else if (data.cmd == 'presence') {
             if (data.status == 'on') {
               _emitter.emit('onlinePeers', data.sessionPeerIds);
@@ -74,11 +96,6 @@ function WebClient(settings) {
             var s = JSON.stringify(msg)
             ws.send(s);
           }
-
-          var cmd = data.op ? data.cmd + data.op : data.cmd;
-          if (_waitCommands.length > 0 && _waitCommands[0][0] === cmd) {
-            _waitCommands.shift()[1](data);
-          }
         };
       });
     } else {
@@ -91,15 +108,9 @@ function WebClient(settings) {
   }
 
   function _openSession() {
-    var msg = {
-      "cmd": "session",
-      "op": "open",
-      "sessionPeerIds": _settings.watchingPeer,
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    var s = JSON.stringify(msg)
-    ws.send(s);
+    doCommand('session','open',{
+      "sessionPeerIds": _settings.watchingPeer
+    });
     return _wait('sessionopened');
   }
 
@@ -109,13 +120,36 @@ function WebClient(settings) {
     });
   }
 
+  function _timeout(name){
+    timers.push([name,setTimeout(function(){
+      doonclose();
+    },10000)]);
+  }
+
   function _keepAlive(){
     clearTimeout(_keepAlive.handle);
     _keepAlive.handle = setTimeout(function(){
       ws.send('{}');
+      _timeout('{}');
       _keepAlive();
-    },1000*60);
+    },keepAliveTimeout);
   }
+
+  function doonclose(){
+    ws.close();
+    connectionStatus = 'notconnected';
+    _emitter.emit('close');
+    clearTimeout(_keepAlive.handle);
+    timers.forEach(function(v,i){
+      clearTimeout(v[1]);
+    });
+    _waitCommands.forEach(function(v){
+      v[2]();
+    });
+    timers = [];
+    _waitCommands = [];
+  }
+
   function doCommand(cmd, op, props){
     _keepAlive();
     var msg = {
@@ -131,9 +165,12 @@ function WebClient(settings) {
         msg[k] = props[k];
       }
     }
+    var c = typeof op == 'undefined'?cmd : cmd+op;
 
     ws.send(JSON.stringify(msg));
+    _timeout(cmdMap[c]||c);
   }
+
   this.open = function() {
     if (connectionStatus == 'connecting') {
       return Promise.reject('should not call open again while  already call open method');
@@ -150,20 +187,25 @@ function WebClient(settings) {
     doCommand('session', 'close')
     ws.close();
     clearTimeout(_keepAlive.handle);
+    timers.forEach(function(v,i){
+      clearTimeout(v[1]);
+    });
+    timers = [];
+
     return _wait('close');
   }
   this.send = function(msg, to, transient) {
     if (connectionStatus != 'connected') {
       return Promise.reject('can not send msg while not connected');
     }
-    if(typeof transient == 'undefined'){
-      transient = false;
-    }
-    doCommand('direct',undefined,{
+    var obj = {
       'msg': msg,
-      'toPeerIds': [].concat(to),
-      'transient': transient
-    });
+      'toPeerIds': [].concat(to)
+    }
+    if(typeof transient == 'undefined'){
+      obj.transient = transient;
+    }
+    doCommand('direct',undefined,obj);
     return _wait('ack');
   };
 

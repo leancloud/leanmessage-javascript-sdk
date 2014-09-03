@@ -36,6 +36,7 @@
         <label for="">watchingPeer: </label>
         <input type="text " id="watchingPeer" class="form-control">
       </div>
+      <button id="new" class="btn btn-default"> new Client </button>
       <button id="start" class="btn btn-default"> open </button>
       <button id="close" class="btn btn-warning"> close </button>
       <span id="connect-status" class="text-primary">not connected</span>
@@ -108,19 +109,24 @@
   var toPeerId;
   // var watchingPeer = $('#watchingPeer').val().split(',');
   var chat;
-  $('#start').click(function(){
-
+  $('#new').click(function(){
     chat = new WebClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser'+Math.random(),
       watchingPeer: $('#watchingPeer').val().split(',')
     });
+  })
+  $('#start').click(function(){
+
+
     $('#allwatcher').empty();
     addWatchingPeer($('#watchingPeer').val().split(','));
     chat.open().then(function(){
       $('#status').append('Opened');
       $('#status').append('<br>');
       $('#connect-status').text('connected')
+    },function(){
+      alert('open failure')
     });
 
 
@@ -140,6 +146,18 @@
         $('#peer-'+peers[i]).removeClass('online');
         $('#peer-'+peers[i]).addClass('offline');
       }
+    });
+    chat.on('close', function(){
+      alert('connection closed')
+      $('#connect-status').text('not connected');
+      $('.online').removeClass('online').addClass('offline');
+      chat.open().then(function(){
+        $('#status').append('Opened');
+        $('#status').append('<br>');
+        $('#connect-status').text('connected')
+      },function(){
+        alert('open failure')
+      });
     });
   });
 
@@ -198,6 +216,8 @@
       $('#msg').val('');
       // $('#status').append('Msg Sended');
       // $('#status').append('<br>');
+    },function(){
+      alert("send failure!!!")
     });
   });
 </script>
