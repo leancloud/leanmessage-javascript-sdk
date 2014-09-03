@@ -109,17 +109,11 @@ function WebClient(settings) {
   }
 
   function _openSession() {
-    doCommand('session','open',{
+    return doCommand('session','open',{
       "sessionPeerIds": _settings.watchingPeer
     });
-    return _wait('sessionopened');
   }
 
-  function _wait(command) {
-    return new Promise(function(resolve, reject) {
-      _waitCommands.push([command, resolve, reject]);
-    });
-  }
 
   function _timeout(name,reject){
     timers.push([name,setTimeout(function(){
@@ -193,7 +187,7 @@ function WebClient(settings) {
   this.close = function() {
     doCommand('session', 'close')
     doonclose();
-
+    return Promise.resolve();
     // return then;
   }
   this.send = function(msg, to, transient) {
@@ -279,7 +273,3 @@ function get(url) {
     req.send();
   });
 }
-// var con = new Connection();
-
-// var chat = new Chat(2);
-// getServerInfo();
