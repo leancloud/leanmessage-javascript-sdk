@@ -166,7 +166,7 @@ function WebClient(settings) {
   this.on = function(name, func) {
     _emitter.on(name, func)
   };
-  this.addWatchingPeer = function(watchingPeer) {
+  this.watch = function(watchingPeer) {
 
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
@@ -176,7 +176,7 @@ function WebClient(settings) {
     });
     return _wait('sessionadded');
   }
-  this.removeWatchingPeer = function(watchingPeer) {
+  this.unwatch = function(watchingPeer) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }

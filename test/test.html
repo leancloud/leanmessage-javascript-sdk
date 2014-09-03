@@ -152,7 +152,7 @@
 
   $('#addwatch').click(function(){
     addWatchingPeer($('#watchingPeer').val().split(','));
-    chat.addWatchingPeer($('#watchingPeer').val().split(',')).then(function(){
+    chat.watch($('#watchingPeer').val().split(',')).then(function(){
 
     },function(){
 
@@ -161,7 +161,7 @@
 
   $('#removewatch').click(function(){
     removeWatchingPeer($('#watchingPeer').val().split(','));
-    chat.removeWatchingPeer($('#watchingPeer').val().split(','));
+    chat.unwatch($('#watchingPeer').val().split(','));
   });
 
   function setSendTo(peerId){
