@@ -26,7 +26,7 @@ function WebClient(settings) {
   initialize(settings);
 
   function _getServerInfo(appId) {
-    var url = 'http://router.g0.push.avoscloud.com/v1/route?appId=' + appId + '&secure=1';
+    var url = 'http://router.g0.push.avoscloud.com/v1/route?appId=' + appId ;
     return get(url);
   }
 
@@ -152,13 +152,17 @@ function WebClient(settings) {
     clearTimeout(_keepAlive.handle);
     return _wait('close');
   }
-  this.send = function(msg, to) {
+  this.send = function(msg, to, transient) {
     if (connectionStatus != 'connected') {
       return Promise.reject('can not send msg while not connected');
     }
+    if(typeof transient == 'undefined'){
+      transient = false;
+    }
     doCommand('direct',undefined,{
       'msg': msg,
-      'toPeerIds': [].concat(to)
+      'toPeerIds': [].concat(to),
+      'transient': transient
     });
     return _wait('ack');
   };
