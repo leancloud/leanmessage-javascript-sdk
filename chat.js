@@ -22,6 +22,7 @@ function WebClient(settings) {
     watchingPeer = [].concat(settings.watchingPeer);
     connectionStatus = "notconnected";
   }
+
   initialize(settings);
 
   function _getServerInfo(appId) {
@@ -115,6 +116,24 @@ function WebClient(settings) {
       _keepAlive();
     },1000*60);
   }
+  function doCommand(cmd, op, props){
+    _keepAlive();
+    var msg = {
+      "cmd": cmd,
+      "peerId": _settings.peerId,
+      "appId": _settings.appId
+    }
+    if(op){
+      msg.op = op;
+    }
+    if(props){
+      for(k in props){
+        msg[k] = props[k];
+      }
+    }
+
+    ws.send(JSON.stringify(msg));
+  }
   this.open = function() {
     if (connectionStatus == 'connecting') {
       return Promise.reject('should not call open again while  already call open method');
@@ -128,13 +147,7 @@ function WebClient(settings) {
   };
   this.close = function() {
     connectionStatus = 'closed';
-    var msg = {
-      "cmd": "session",
-      "op": "close",
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    ws.send(JSON.stringify(msg));
+    doCommand('session', 'close')
     ws.close();
     clearTimeout(_keepAlive.handle);
     return _wait('close');
@@ -143,15 +156,10 @@ function WebClient(settings) {
     if (connectionStatus != 'connected') {
       return Promise.reject('can not send msg while not connected');
     }
-    _keepAlive();
-    var msg = {
-      "msg": msg,
-      "cmd": "direct",
-      "toPeerIds": [].concat(to),
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    ws.send(JSON.stringify(msg));
+    doCommand('direct',undefined,{
+      'msg': msg,
+      'toPeerIds': [].concat(to)
+    });
     return _wait('ack');
   };
 
@@ -163,15 +171,9 @@ function WebClient(settings) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }
-    _keepAlive();
-    var msg = {
-      "cmd": "session",
-      "op": "add",
-      "sessionPeerIds": [].concat(watchingPeer),
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    ws.send(JSON.stringify(msg));
+    doCommand('session', 'add', {
+      'sessionPeerIds': [].concat(watchingPeer)
+    });
     return _wait('sessionadded');
   }
   this.removeWatchingPeer = function(watchingPeer) {
@@ -193,14 +195,9 @@ function WebClient(settings) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }
-    var msg = {
-      "cmd": "session",
-      "op": "query",
-      "sessionPeerIds": [].concat(watchingPeer),
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    ws.send(JSON.stringify(msg));
+    doCommand('session', 'query' ,{
+      'sessionPeerIds': [].concat(watchingPeer)
+    });
     return _wait('sessionquery-result');
   }
 
