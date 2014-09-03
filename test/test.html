@@ -115,21 +115,6 @@
       peerId: $('#sender').val() || 'testuser'+Math.random(),
       watchingPeer: $('#watchingPeer').val().split(',')
     });
-  })
-  $('#start').click(function(){
-
-
-    $('#allwatcher').empty();
-    addWatchingPeer($('#watchingPeer').val().split(','));
-    chat.open().then(function(){
-      $('#status').append('Opened');
-      $('#status').append('<br>');
-      $('#connect-status').text('connected')
-    },function(){
-      alert('open failure')
-    });
-
-
     chat.on('message',function(data){
       $('#msgreceive').append(JSON.stringify(data));
       $('#msgreceive').append('<br>');
@@ -159,6 +144,22 @@
         alert('open failure')
       });
     });
+  })
+  $('#start').click(function(){
+
+
+    $('#allwatcher').empty();
+    addWatchingPeer($('#watchingPeer').val().split(','));
+    chat.open().then(function(){
+      $('#status').append('Opened');
+      $('#status').append('<br>');
+      $('#connect-status').text('connected')
+    },function(){
+      alert('open failure')
+    });
+
+
+
   });
 
   $('#close').click(function(){

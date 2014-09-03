@@ -41,21 +41,22 @@ function WebClient(settings) {
     return get(url);
   }
 
+
   function _connect() {
     if (server && new Date() < server.expires) {
       return new Promise(function(resolve, reject) {
         ws = new WebSocket(server.server);
-        _timeout('connectopen');
+        _timeout('connectopen',reject);
         ws.onopen = function() {
           clearTimeout(timers.shift()[1]);
           connectionStatus = 'connected';
           resolve(server);
         };
         ws.onclose = function() {
-          connectionStatus = 'closed';
-          if (_waitCommands.length > 0 && _waitCommands[0][0] === 'close') {
-            _waitCommands.shift()[1]();
-          }
+          // connectionStatus = 'closed';
+          // if (_waitCommands.length > 0 && _waitCommands[0][0] === 'close') {
+          //   _waitCommands.shift()[1]();
+          // }
         }
         ws.onmessage = function(message) {
           var data = JSON.parse(message.data);
@@ -120,9 +121,14 @@ function WebClient(settings) {
     });
   }
 
-  function _timeout(name){
+  function _timeout(name,reject){
     timers.push([name,setTimeout(function(){
-      doonclose();
+      if(reject){
+        reject();
+      }
+      if(name != 'connectopen'){
+        doonclose();
+      }
     },10000)]);
   }
 
@@ -151,24 +157,26 @@ function WebClient(settings) {
   }
 
   function doCommand(cmd, op, props){
-    _keepAlive();
-    var msg = {
-      "cmd": cmd,
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    if(op){
-      msg.op = op;
-    }
-    if(props){
-      for(k in props){
-        msg[k] = props[k];
+    return new Promise(function(resolve, reject) {
+      var c = typeof op == 'undefined'?cmd : cmd+op;
+      _waitCommands.push([cmdMap[c]||c, resolve, reject]);
+      _keepAlive();
+      var msg = {
+        "cmd": cmd,
+        "peerId": _settings.peerId,
+        "appId": _settings.appId
       }
-    }
-    var c = typeof op == 'undefined'?cmd : cmd+op;
-
-    ws.send(JSON.stringify(msg));
-    _timeout(cmdMap[c]||c);
+      if(op){
+        msg.op = op;
+      }
+      if(props){
+        for(k in props){
+          msg[k] = props[k];
+        }
+      }
+      ws.send(JSON.stringify(msg));
+      _timeout(cmdMap[c]||c ,reject);
+    });
   }
 
   this.open = function() {
@@ -183,16 +191,10 @@ function WebClient(settings) {
     });
   };
   this.close = function() {
-    connectionStatus = 'closed';
     doCommand('session', 'close')
-    ws.close();
-    clearTimeout(_keepAlive.handle);
-    timers.forEach(function(v,i){
-      clearTimeout(v[1]);
-    });
-    timers = [];
+    doonclose();
 
-    return _wait('close');
+    // return then;
   }
   this.send = function(msg, to, transient) {
     if (connectionStatus != 'connected') {
@@ -205,8 +207,7 @@ function WebClient(settings) {
     if(typeof transient == 'undefined'){
       obj.transient = transient;
     }
-    doCommand('direct',undefined,obj);
-    return _wait('ack');
+    return doCommand('direct',undefined,obj);
   };
 
   this.on = function(name, func) {
@@ -217,10 +218,9 @@ function WebClient(settings) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }
-    doCommand('session', 'add', {
+    return doCommand('session', 'add', {
       'sessionPeerIds': [].concat(watchingPeer)
     });
-    return _wait('sessionadded');
   }
   this.unwatch = function(watchingPeer) {
     if(connectionStatus!='connected'){
@@ -241,10 +241,9 @@ function WebClient(settings) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }
-    doCommand('session', 'query' ,{
+    return doCommand('session', 'query' ,{
       'sessionPeerIds': [].concat(watchingPeer)
     });
-    return _wait('sessionquery-result');
   }
 
 
