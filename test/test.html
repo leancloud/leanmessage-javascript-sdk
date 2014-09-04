@@ -136,13 +136,13 @@
       alert('connection closed')
       $('#connect-status').text('not connected');
       $('.online').removeClass('online').addClass('offline');
-      chat.open().then(function(){
-        $('#status').append('Opened');
-        $('#status').append('<br>');
-        $('#connect-status').text('connected')
-      },function(){
-        alert('open failure')
-      });
+      // chat.open().then(function(){
+      //   $('#status').append('Opened');
+      //   $('#status').append('<br>');
+      //   $('#connect-status').text('connected')
+      // },function(){
+      //   alert('open failure')
+      // });
     });
   })
   $('#start').click(function(){

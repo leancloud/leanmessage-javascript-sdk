@@ -46,7 +46,7 @@ function WebClient(settings) {
     if (server && new Date() < server.expires) {
       return new Promise(function(resolve, reject) {
         ws = new WebSocket(server.server);
-        _timeout('connectopen',reject);
+        _timeout('connectopen',function(){ connectionStatus = 'openfailure'; reject();});
         ws.onopen = function() {
           if(timers.length > 0){
             clearTimeout(timers.shift()[1]);
@@ -182,6 +182,10 @@ function WebClient(settings) {
     } else if (connectionStatus == 'connected') {
       return Promise.resolve();
     }
+    timers.forEach(function(v,i){
+      clearTimeout(v[1]);
+    });
+    timers = [];
     connectionStatus = 'connecting';
     return _connect().then(function() {
       return _openSession();
