@@ -156,7 +156,9 @@ function WebClient(settings) {
   function doCommand(cmd, op, props){
     return new Promise(function(resolve, reject) {
       var c = typeof op == 'undefined'?cmd : cmd+op;
-      _waitCommands.push([cmdMap[c]||c, resolve, reject]);
+      if(c != 'sessionremove' && c != 'sessionclose'){
+        _waitCommands.push([cmdMap[c]||c, resolve, reject]);
+      }
       _keepAlive();
       var msg = {
         "cmd": cmd,
@@ -227,18 +229,12 @@ function WebClient(settings) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }
-    _keepAlive();
-    var msg = {
-      "cmd": "session",
-      "op": "remove",
-      "sessionPeerIds": [].concat(watchingPeer),
-      "peerId": _settings.peerId,
-      "appId": _settings.appId
-    }
-    ws.send(JSON.stringify(msg));
+    doCommand('session', 'remove', {
+      "sessionPeerIds": [].concat(watchingPeer);
+    })
     return Promise.resolve();
   }
-  this.getPeerStatus = function(watchingPeer) {
+  this.getStatus = function(watchingPeer) {
     if(connectionStatus!='connected'){
       Promise.reject('can not add watchingPeer while not connected');
     }
