@@ -48,7 +48,9 @@ function WebClient(settings) {
         ws = new WebSocket(server.server);
         _timeout('connectopen',reject);
         ws.onopen = function() {
-          clearTimeout(timers.shift()[1]);
+          if(timers.length > 0){
+            clearTimeout(timers.shift()[1]);
+          }
           connectionStatus = 'connected';
           resolve(server);
         };
@@ -121,7 +123,8 @@ function WebClient(settings) {
         reject();
       }
       if(name != 'connectopen'){
-        doonclose();
+        doClose();
+        _emitter.emit('close');
       }
     },10000)]);
   }
@@ -135,10 +138,9 @@ function WebClient(settings) {
     },keepAliveTimeout);
   }
 
-  function doonclose(){
+  function doClose(){
     ws.close();
     connectionStatus = 'notconnected';
-    _emitter.emit('close');
     clearTimeout(_keepAlive.handle);
     timers.forEach(function(v,i){
       clearTimeout(v[1]);
@@ -148,6 +150,7 @@ function WebClient(settings) {
     });
     timers = [];
     _waitCommands = [];
+
   }
 
   function doCommand(cmd, op, props){
@@ -186,7 +189,7 @@ function WebClient(settings) {
   };
   this.close = function() {
     doCommand('session', 'close')
-    doonclose();
+    doClose();
     return Promise.resolve();
     // return then;
   }
