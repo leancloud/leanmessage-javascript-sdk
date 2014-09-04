@@ -156,9 +156,7 @@ function WebClient(settings) {
   function doCommand(cmd, op, props){
     return new Promise(function(resolve, reject) {
       var c = typeof op == 'undefined'?cmd : cmd+op;
-      if(c != 'sessionremove' && c != 'sessionclose'){
-        _waitCommands.push([cmdMap[c]||c, resolve, reject]);
-      }
+
       _keepAlive();
       var msg = {
         "cmd": cmd,
@@ -174,7 +172,11 @@ function WebClient(settings) {
         }
       }
       ws.send(JSON.stringify(msg));
-      _timeout(cmdMap[c]||c ,reject);
+      if(c != 'sessionremove' && c != 'sessionclose'){ //don't need server confirm
+        _waitCommands.push([cmdMap[c]||c, resolve, reject]);
+        _timeout(cmdMap[c]||c ,reject);
+      }
+
     });
   }
 
@@ -230,7 +232,7 @@ function WebClient(settings) {
       Promise.reject('can not add watchingPeer while not connected');
     }
     doCommand('session', 'remove', {
-      "sessionPeerIds": [].concat(watchingPeer);
+      "sessionPeerIds": [].concat(watchingPeer)
     })
     return Promise.resolve();
   }
