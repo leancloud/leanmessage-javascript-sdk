@@ -39,7 +39,8 @@ function WebClient(settings) {
     if(keepAliveTimeout > 10000){
       keepAliveTimeout = 10000;
     }
-    watchingPeer = [].concat(settings.watchingPeer);
+    watchingPeer = [];
+    // watchingPeer = [].concat(settings.watchingPeer);
     connectionStatus = "notconnected";
   }
 
@@ -84,7 +85,7 @@ function WebClient(settings) {
 
           if (data.cmd == 'session') {
             if (data.op == 'opened'||data.op == 'added') {
-              _emitter.emit('onlinePeers', data.onlineSessionPeerIds);
+              _emitter.emit('online', data.onlineSessionPeerIds);
             }
           } else if (data.cmd == 'presence') {
             if (data.status == 'on') {
@@ -118,7 +119,7 @@ function WebClient(settings) {
   }
 
   function _openSession() {
-    return _settings.auth(_settings.peerId,watchingPeer).then(function(data){
+    return _settings.auth(_settings.peerId,_settings.watchingPeer).then(function(data){
       watchingPeer = data.watchingPeer;
       return doCommand('session','open',{
         sessionPeerIds: data.watchingPeer,
@@ -233,13 +234,17 @@ function WebClient(settings) {
   this.on = function(name, func) {
     _emitter.on(name, func)
   };
-  this.watch = function(watchingPeer) {
-
+  this.watch = function(peers) {
     if(connectionStatus!='connected'){
       return Promise.reject('can not add watchingPeer while not connected');
     }
-    return _settings.auth(_settings.peerId,[].concat(watchingPeer)).then(function(data){
-      watchingPeer.concat(data.watchingPeer);
+    return _settings.auth(_settings.peerId,[].concat(peers)).then(function(data){
+      var watch = [].concat(data.watchingPeer);
+      watch.forEach(function(v,k){
+        if(watchingPeer.indexOf(v)==-1){
+          watchingPeer.push(v);
+        }
+      });
       return doCommand('session', 'add', {
         'sessionPeerIds': [].concat(data.watchingPeer),
         s: data.s,
@@ -248,21 +253,26 @@ function WebClient(settings) {
       });
     })
   }
-  this.unwatch = function(watchingPeer) {
+  this.unwatch = function(peers) {
     if(connectionStatus!='connected'){
       return Promise.reject('can not add watchingPeer while not connected');
     }
+    peers.forEach(function(v,k){
+      if(watchingPeer.indexOf(v)>-1){
+        watchingPeer.splice(watchingPeer.indexOf(v),1);
+      }
+    });
     doCommand('session', 'remove', {
-      "sessionPeerIds": [].concat(watchingPeer)
+      "sessionPeerIds": [].concat(peers)
     })
     return Promise.resolve();
   }
-  this.getStatus = function(watchingPeer) {
+  this.getStatus = function(peers) {
     if(connectionStatus!='connected'){
      return  Promise.reject('can not add watchingPeer while not connected');
     }
     return doCommand('session', 'query' ,{
-      'sessionPeerIds': [].concat(watchingPeer)
+      'sessionPeerIds': [].concat(peers)
     });
   }
 

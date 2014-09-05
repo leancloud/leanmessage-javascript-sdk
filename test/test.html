@@ -256,7 +256,7 @@
           n: data.nonce,
           t: data.timestamp,
           s: data.signature,
-          watchingPeer: data.watch_ids
+          watchingPeer: data.watch_ids.split(':')
          });
       }).error(function(err){
         reject(err);
