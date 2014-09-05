@@ -137,13 +137,13 @@
       $('#msgreceive').append('<br>');
       // console.log(data);
     });
-    chat.on('onlinePeers', function(peers){
+    chat.on('online', function(peers){
       for(var i=0;i<peers.length;i++){
         $('#peer-'+peers[i]).removeClass('offline');
         $('#peer-'+peers[i]).addClass('online');
       }
     });
-    chat.on('offlinePeers', function(peers){
+    chat.on('offline', function(peers){
       for(var i=0;i<peers.length;i++){
         $('#peer-'+peers[i]).removeClass('online');
         $('#peer-'+peers[i]).addClass('offline');
@@ -191,7 +191,7 @@
     chat.watch($('#watchingPeer').val().split(',')).then(function(){
 
     },function(){
-
+      alert('watch failure')
     });
   });
 

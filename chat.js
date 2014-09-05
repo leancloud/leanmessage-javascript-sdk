@@ -88,9 +88,9 @@ function WebClient(settings) {
             }
           } else if (data.cmd == 'presence') {
             if (data.status == 'on') {
-              _emitter.emit('onlinePeers', data.sessionPeerIds);
+              _emitter.emit('online', data.sessionPeerIds);
             } else if (data.status == 'off') {
-              _emitter.emit('offlinePeers', data.sessionPeerIds);
+              _emitter.emit('offline', data.sessionPeerIds);
             }
           } else if (data.cmd == 'direct') {
             _emitter.emit('message', {
@@ -119,6 +119,7 @@ function WebClient(settings) {
 
   function _openSession() {
     return _settings.auth(_settings.peerId,watchingPeer).then(function(data){
+      watchingPeer = data.watchingPeer;
       return doCommand('session','open',{
         sessionPeerIds: data.watchingPeer,
         s: data.s,
@@ -235,9 +236,10 @@ function WebClient(settings) {
   this.watch = function(watchingPeer) {
 
     if(connectionStatus!='connected'){
-      Promise.reject('can not add watchingPeer while not connected');
+      return Promise.reject('can not add watchingPeer while not connected');
     }
     return _settings.auth(_settings.peerId,[].concat(watchingPeer)).then(function(data){
+      watchingPeer.concat(data.watchingPeer);
       return doCommand('session', 'add', {
         'sessionPeerIds': [].concat(data.watchingPeer),
         s: data.s,
@@ -245,11 +247,10 @@ function WebClient(settings) {
         n: data.n
       });
     })
-
   }
   this.unwatch = function(watchingPeer) {
     if(connectionStatus!='connected'){
-      Promise.reject('can not add watchingPeer while not connected');
+      return Promise.reject('can not add watchingPeer while not connected');
     }
     doCommand('session', 'remove', {
       "sessionPeerIds": [].concat(watchingPeer)
@@ -258,7 +259,7 @@ function WebClient(settings) {
   }
   this.getStatus = function(watchingPeer) {
     if(connectionStatus!='connected'){
-      Promise.reject('can not add watchingPeer while not connected');
+     return  Promise.reject('can not add watchingPeer while not connected');
     }
     return doCommand('session', 'query' ,{
       'sessionPeerIds': [].concat(watchingPeer)
