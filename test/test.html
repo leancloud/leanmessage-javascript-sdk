@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <script src="promise-1.0.0.min.js"></script>
   <script src="../lib/chat.js"></script>
 
   <style>
@@ -119,7 +120,7 @@
 
 
 <script>
-  var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
+  var appid = '9zcwm6xjbg3iajmky2xpef9wfxjwatqte1my06xdd83k26nc';
   var peerId = $('#sender').val() || 'testuser'+Math.random();
   var toPeerId;
   // var watchingPeer = $('#watchingPeer').val().split(',');
@@ -128,7 +129,8 @@
     chat = new WebClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser'+Math.random(),
-      watchingPeer: $('#watchingPeer').val().split(',')
+      watchingPeer: $('#watchingPeer').val().split(','),
+      auth: auth
     });
     chat.on('message',function(data){
       $('#msgreceive').append(JSON.stringify(data));
@@ -242,6 +244,26 @@
       console.log(data);
     })
   });
+
+  function auth(peerId,watchingPeers){
+    return new Promise(function(resolve,reject){
+      $.post('http://localhost:8080/sign',{
+        self_id : peerId,
+        watch_ids: watchingPeers.join(':')
+      }).success(function(data){
+        console.log(data.watch_ids)
+         resolve({
+          n: data.nonce,
+          t: data.timestamp,
+          s: data.signature,
+          watchingPeer: data.watch_ids
+         });
+      }).error(function(err){
+        reject(err);
+      })
+    })
+
+  }
 </script>
 </body>
 </html>
