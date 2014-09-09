@@ -20,7 +20,9 @@ function WebClient(settings) {
 
   var timers = [];
   function auth(){
-    return Promise.resolve();
+    return Promise.resolve({
+      watchingPeer: []
+    });
   }
   function initialize(settings) {
     if (!settings) throw new Error('settings')

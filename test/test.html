@@ -130,8 +130,8 @@
     chat = new WebClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser'+Math.random(),
-      watchingPeer: $('#watchingPeer').val().split(','),
-      auth: auth
+      watchingPeer: $('#watchingPeer').val().split(',')
+      // auth: auth
     });
     chat.on('message',function(data){
       $('#msgreceive').append(JSON.stringify(data));
@@ -172,8 +172,9 @@
       $('#status').append('Opened');
       $('#status').append('<br>');
       $('#connect-status').text('connected')
-    },function(){
-      alert('open failure')
+    },function(err){
+      alert('open failure');
+      console.log(err)
     });
 
 
