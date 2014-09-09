@@ -61,6 +61,7 @@
             <input type="text" class="form-control" id="querypeer">
           </div>
           <button class="btn btn-default" id="getstatus">getStatus</button>
+          <span id="peeronline"></span>
         </div>
       </div>
     </div>
@@ -242,6 +243,7 @@
   $('#getstatus').click(function(){
     chat.getStatus($('#querypeer').val().split(',')).then(function(data){
       console.log(data);
+      $('#peeronline').text(data.onlineSessionPeerIds.join(','));
     })
   });
 
