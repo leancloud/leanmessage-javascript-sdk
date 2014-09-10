@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Message </title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
   <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
   <script src="promise-1.0.0.min.js"></script>
@@ -52,9 +53,13 @@
     </div>
     <hr>
     <h4>Peer & Room</h4>
-    <div class="row">
-      <div class="col-md-6">
-        <h4>Peer</h4>
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="active"><a href="#peer-container" role="tab" data-toggle="tab" >Peer</a></li>
+      <li><a href="#room-container" role="tab" data-toggle="tab">Room</a></li>
+
+    </ul>
+    <div class="tab-content">
+      <div id="peer-container" class="tab-pane active" >
         <h5>WatchingPeers </h5>
         <div id="allwatcher">
         </div>
@@ -76,10 +81,10 @@
         </div>
       </div>
 
-      <div class="col-md-6">
-        <h4>Room</h4>
+
+      <div  id="room-container" class="tab-pane " >
         <h5>Rooms</h5>
-        <div id="allroom">
+        <div id="allroom" class="panel-group">
 
         </div>
         <h5>Room Id</h5>
@@ -88,7 +93,7 @@
             <input type="text" class="form-control" id="roomid">
             <div class="btn-group">
               <button class="btn btn-default" id="joinroom">join</button>
-              <button class="btn btn-default" id="leaveroom">leave</button>
+
               <button class="btn btn-default" id="inviteroom">invite</button>
               <button class="btn btn-default" id="kickroom">kick</button>
             </div>
@@ -103,6 +108,7 @@
 
       </div>
     </div>
+
 
     <hr>
     <div class="row">
@@ -150,15 +156,38 @@
 </script>
 
 <script type="tpl" id="room-tpl">
-<div id="room-container-@roomId@">
-<button type="button" class="btn btn-default" id="room-@roomId@" onclick="setRoom('@roomId@')">@roomId@</button>
-<div class="members">
-</div>
-</div>
+
+
+<div class="panel panel-default room" id="room-container-@roomId@" data-room-id="@roomId@">
+   <div class="panel-heading">
+     <h4 class="panel-title">
+       <a data-toggle="collapse" data-parent="#accordion" href="#room-body-@roomId@">
+         @roomId@
+       </a>
+       <button class="btn btn-default btn-sm" id="leaveroom">leave</button>
+     </h4>
+   </div>
+   <div id="room-body-@roomId@" class="panel-collapse collapse">
+     <div class="panel-body">
+
+       <div class="members">
+       </div>
+     </div>
+   </div>
+ </div>
+
 </script>
 
 <script type="tpl" id="room-member-tpl">
-<button type="button" class="btn btn-default" id="room-member-@peerId@" onclick="setSendTo('@peerId@')">@peerId@</button>
+<div class="btn-group room-member" id="room-member-@peerId@"  data-peer-id="@peerId@" data-room-id="@peerId@">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    @peerId@ <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a  class="kick">Kick</a></li>
+
+  </ul>
+</div>
 </script>
 
 
@@ -209,14 +238,20 @@
       if(data.peerId == peerId){
 
       }
-      $('#room-container-'+data.roomId+ ' .members').append($('#room-member-tpl').html().replace(/@peerId@/g,data.peerId));
+      data.roomPeerIds.forEach(function(id){
+        $('#room-container-'+data.roomId+ ' .members').append($('#room-member-tpl').html().replace(/@peerId@/g,id));
+      });
+
       // console.log(data)
     });
     chat.on('membersLeft',function(data){
       if(data.peerId == peerId){
 
       }
-      $('room-member-'+data.peerId).remove();
+      data.roomPeerIds.forEach(function(id){
+        $('room-member-'+id).remove();
+      });
+
     })
   });
 
@@ -313,7 +348,8 @@
     })
   });
   $('#leaveroom').click(function(){
-    chat.leaveRoom($('#roomid').val()).then(function(data){
+    var roomId = $(this).parents('.room').data('room-id');
+    chat.leaveRoom(roomId).then(function(data){
       console.log(data)
       $('#room-container-'+data.roomId).remove();
       // alert('joined')
@@ -326,13 +362,16 @@
       // alert('joined')
     })
   });
-  $('#kickroom').click(function(){
-    chat.kickFromRoom($('#roomid').val()).then(function(data){
+  $(document).on('click','.kick', function(){
+    var roomId = $(this).parents('.room').data('room-id');
+    var targetId = $(this).parents('.room-member').data('room-member-id');
+    chat.kickFromRoom(roomId,targetId).then(function(data){
       console.log(data)
-      $('#roomid').val(data.roomId);
+      // $('#roomid').val(data.roomId);
       // alert('joined')
     })
-  });
+  })
+
   $('#sendroom').click(function(){
     chat.sendToRoom($('#msgroom').val(),$('#roomid').val()).then(function(){
       $('#msgsent').append(JSON.stringify({
