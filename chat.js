@@ -15,7 +15,11 @@ function WebClient(settings) {
     'direct': 'ack',
     'sessionopen': 'sessionopened',
     'sessionadd': 'sessionadded',
-    'sessionquery': 'sessionquery-result'
+    'sessionquery': 'sessionquery-result',
+    'roomjoin': 'roomjoined',
+    'roominvite': 'roominvited',
+    'roomleave': 'roomleft',
+    'roomkick': 'roomkicked'
   }
 
   var timers = [];
@@ -96,10 +100,7 @@ function WebClient(settings) {
               _emitter.emit('offline', data.sessionPeerIds);
             }
           } else if (data.cmd == 'direct') {
-            _emitter.emit('message', {
-              msg: data.msg,
-              fromPeerId: data.fromPeerId
-            });
+            _emitter.emit('message', data);
             var msg = {
               "cmd": "ack",
               "peerId": _settings.peerId,
@@ -108,6 +109,12 @@ function WebClient(settings) {
             }
             var s = JSON.stringify(msg)
             ws.send(s);
+          } else if(data.cmd == 'room'){
+            if(data.op == 'members-joined'){
+              _emitter.emit('membersJoined', data);
+            }else if(data.op == 'members-left'){
+              _emitter.emit('membersLeft', data);
+            }
           }
         };
       });
@@ -275,6 +282,41 @@ function WebClient(settings) {
     }
     return doCommand('session', 'query' ,{
       'sessionPeerIds': [].concat(peers)
+    });
+  }
+  this.joinRoom = function(roomId) {
+    return doCommand('room', 'join', {
+      roomId: roomId
+    });
+  }
+  this.sendToRoom = function(msg, roomId, transient){
+    if (connectionStatus != 'connected') {
+      return Promise.reject('can not send msg while not connected');
+    }
+    var obj = {
+      'msg': msg,
+      'roomId': roomId
+    }
+    if(typeof transient == 'undefined'){
+      obj.transient = transient;
+    }
+    return doCommand('direct',undefined,obj);
+  }
+  this.inviteToRoom = function(roomId, roomPeerIds){
+    return doCommand('room', 'invite', {
+      roomId: roomId,
+      roomPeerIds: [].concat(roomPeerIds)
+    });
+  }
+  this.kickFromRoom = function(roomId, roomPeerIds) {
+    return doCommand('room', 'kick', {
+      roomId: roomId,
+      roomPeerIds: [].concat(roomPeerIds)
+    });
+  }
+  this.leaveRoom = function(roomId) {
+    return doCommand('room', 'leave', {
+      roomId: roomId
     });
   }
 

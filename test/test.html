@@ -38,23 +38,34 @@
         <input type="text " id="watchingPeer" class="form-control">
       </div>
       <button id="new" class="btn btn-default"> new Client </button>
-      <button id="start" class="btn btn-default"> open </button>
-      <button id="close" class="btn btn-warning"> close </button>
+      <div class="btn-group">
+        <button id="open" class="btn btn-default"> open </button>
+        <button id="close" class="btn btn-warning"> close </button>
+      </div>
+
       <span id="connect-status" class="text-primary">not connected</span>
-      <button id="addwatch" class="btn btn-default"> watch </button>
-      <button id="removewatch" class="btn btn-default"> unwatch </button>
+      <div class="btn-group">
+        <button id="addwatch" class="btn btn-default"> watch </button>
+        <button id="removewatch" class="btn btn-default"> unwatch </button>
+      </div>
+
     </div>
     <hr>
-    <h4>PeerStatus</h4>
+    <h4>Peer & Room</h4>
     <div class="row">
       <div class="col-md-6">
-        <h5>WatchingPeers</h5>
+        <h4>Peer</h4>
+        <h5>WatchingPeers </h5>
         <div id="allwatcher">
-      <!-- Split button -->
-
         </div>
-      </div>
-      <div class="col-md-6">
+        <h5>Message to <span class="text-primary" id="to-peer-id"></span></h5>
+        <div  class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control" id="msg">
+          </div>
+          <button class="btn btn-default" id="sendbtn">send</button>
+        </div>
+
         <h5>getPeerStatus</h5>
         <div class="form-inline">
           <div class="form-group">
@@ -64,18 +75,39 @@
           <span id="peeronline"></span>
         </div>
       </div>
+
+      <div class="col-md-6">
+        <h4>Room</h4>
+        <h5>Rooms</h5>
+        <div id="allroom">
+
+        </div>
+        <h5>Room Id</h5>
+        <div class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control" id="roomid">
+            <div class="btn-group">
+              <button class="btn btn-default" id="joinroom">join</button>
+              <button class="btn btn-default" id="leaveroom">leave</button>
+              <button class="btn btn-default" id="inviteroom">invite</button>
+              <button class="btn btn-default" id="kickroom">kick</button>
+            </div>
+          </div>
+        </div>
+        <h5>Room Message</h5>
+        <div class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control" id="msgroom"> <button class="btn btn-default" id="sendroom">send</button>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <hr>
     <div class="row">
       <div class="col-md-6">
-        <h4>Message to <span class="text-primary" id="to-peer-id"></span></h4>
-        <div  class="form-inline">
-          <div class="form-group">
-            <input type="text" class="form-control" id="msg">
-          </div>
-          <button class="btn btn-default" id="sendbtn">send</button>
-        </div>
+
 
       </div>
 
@@ -117,6 +149,18 @@
 <button type="button" class="btn btn-default" id="peer-@peerId@" onclick="setSendTo('@peerId@')">@peerId@</button>
 </script>
 
+<script type="tpl" id="room-tpl">
+<div id="room-container-@roomId@">
+<button type="button" class="btn btn-default" id="room-@roomId@" onclick="setRoom('@roomId@')">@roomId@</button>
+<div class="members">
+</div>
+</div>
+</script>
+
+<script type="tpl" id="room-member-tpl">
+<button type="button" class="btn btn-default" id="room-member-@peerId@" onclick="setSendTo('@peerId@')">@peerId@</button>
+</script>
+
 
 
 
@@ -126,13 +170,23 @@
   var toPeerId;
   // var watchingPeer = $('#watchingPeer').val().split(',');
   var chat;
+
+  // ---------------- 基本初始化 打开关闭 ----------------
   $('#new').click(function(){
+    peerId = $('#sender').val();
     chat = new WebClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser'+Math.random(),
       watchingPeer: $('#watchingPeer').val().split(',')
       // auth: auth
     });
+
+    chat.on('close', function(){
+      alert('connection closed')
+      $('#connect-status').text('not connected');
+      $('.online').removeClass('online').addClass('offline');
+    });
+    //chat 相关监听
     chat.on('message',function(data){
       $('#msgreceive').append(JSON.stringify(data));
       $('#msgreceive').append('<br>');
@@ -150,23 +204,25 @@
         $('#peer-'+peers[i]).addClass('offline');
       }
     });
-    chat.on('close', function(){
-      alert('connection closed')
-      $('#connect-status').text('not connected');
-      $('.online').removeClass('online').addClass('offline');
-      // chat.open().then(function(){
-      //   $('#status').append('Opened');
-      //   $('#status').append('<br>');
-      //   $('#connect-status').text('connected')
-      // },function(){
-      //   alert('open failure')
-      // });
+    //room 相关监听
+    chat.on('membersJoined',function(data){
+      if(data.peerId == peerId){
+
+      }
+      $('#room-container-'+data.roomId+ ' .members').append($('#room-member-tpl').html().replace(/@peerId@/g,data.peerId));
+      // console.log(data)
     });
+    chat.on('membersLeft',function(data){
+      if(data.peerId == peerId){
+
+      }
+      $('room-member-'+data.peerId).remove();
+    })
   });
-  $('#start').click(function(){
 
-
+  $('#open').click(function(){
     $('#allwatcher').empty();
+
     addWatchingPeer($('#watchingPeer').val().split(','));
     chat.open().then(function(){
       $('#status').append('Opened');
@@ -176,9 +232,6 @@
       alert('open failure');
       console.log(err)
     });
-
-
-
   });
 
   $('#close').click(function(){
@@ -187,6 +240,9 @@
       $('.online').removeClass('online').addClass('offline');
     });
   })
+
+  //---------------- 1 v 1 聊天相关 ----------------
+
 
   $('#addwatch').click(function(){
     addWatchingPeer($('#watchingPeer').val().split(','));
@@ -241,6 +297,57 @@
     });
   });
 
+  //------------- room 相关 ----------------
+
+  var roomId ;
+  function setRoom(roomId){
+    $('#roomid').val(roomId);
+  }
+  $('#joinroom').click(function(){
+    chat.joinRoom($('#roomid').val()).then(function(data){
+      var str = $('#room-tpl').html().replace(/@roomId@/g,data.roomId);
+      $('#allroom').append(str);
+      // console.log(data)
+      // $('#roomid').val(data.roomId);
+      // alert('joined')
+    })
+  });
+  $('#leaveroom').click(function(){
+    chat.leaveRoom($('#roomid').val()).then(function(data){
+      console.log(data)
+      $('#room-container-'+data.roomId).remove();
+      // alert('joined')
+    })
+  });
+  $('#inviteroom').click(function(){
+    chat.inviteToRoom($('#roomid').val()).then(function(data){
+      console.log(data)
+      $('#roomid').val(data.roomId);
+      // alert('joined')
+    })
+  });
+  $('#kickroom').click(function(){
+    chat.kickFromRoom($('#roomid').val()).then(function(data){
+      console.log(data)
+      $('#roomid').val(data.roomId);
+      // alert('joined')
+    })
+  });
+  $('#sendroom').click(function(){
+    chat.sendToRoom($('#msgroom').val(),$('#roomid').val()).then(function(){
+      $('#msgsent').append(JSON.stringify({
+        msg: $('#msgroom').val(),
+        roomId: $('#roomid').val()
+      }));
+      $('#msgsent').append('<br>');
+      $('#msgroom').val('');
+      // $('#status').append('Msg Sended');
+      // $('#status').append('<br>');
+    },function(){
+      alert("send failure!!!")
+    });
+  });
+
   $('#getstatus').click(function(){
     chat.getStatus($('#querypeer').val().split(',')).then(function(data){
       console.log(data);
@@ -248,6 +355,8 @@
     })
   });
 
+
+  //认证
   function auth(peerId,watchingPeers){
     return new Promise(function(resolve,reject){
       $.post('http://localhost:8080/sign',{
