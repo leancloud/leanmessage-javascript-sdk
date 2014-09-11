@@ -114,6 +114,10 @@ function WebClient(settings) {
               _emitter.emit('membersJoined', data);
             }else if(data.op == 'members-left'){
               _emitter.emit('membersLeft', data);
+            }else if(data.op == 'joined'){
+              _emitter.emit('joined',data)
+            }else if(data.op == 'left'){
+              _emitter.emit('left',data);
             }
           }
         };
