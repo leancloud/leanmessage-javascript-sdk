@@ -49,10 +49,10 @@
 
     </div>
     <hr>
-    <h4>Peer & Room</h4>
+    <h4>Peer & Group</h4>
     <ul class="nav nav-tabs" role="tablist">
       <li class="active"><a href="#peer-container" role="tab" data-toggle="tab" >Peer</a></li>
-      <li><a href="#room-container" role="tab" data-toggle="tab">Room</a></li>
+      <li><a href="#group-container" role="tab" data-toggle="tab">Group</a></li>
 
     </ul>
     <div class="tab-content">
@@ -79,34 +79,34 @@
       </div>
 
 
-      <div  id="room-container" class="tab-pane " >
+      <div  id="group-container" class="tab-pane " >
         <div class="row">
           <div class="col-md-6">
-            <h5>Rooms</h5>
-            <div id="allroom" class="panel-group">
+            <h5>Groups</h5>
+            <div id="allgroup" class="panel-group">
 
             </div>
           </div>
           <div class="col-md-6">
-            <h5>Join or Create room</h5>
+            <h5>Join or Create group</h5>
             <div class="form-inline">
               <div class="form-group">
-                <input type="text" class="form-control" id="roomid">
-                <button class="btn btn-default" id="joinroom">join</button>
+                <input type="text" class="form-control" id="groupid">
+                <button class="btn btn-default" id="joingroup">join</button>
               </div>
 
             </div>
-            <h5>Invite To Join Room</h5>
+            <h5>Invite To Join Group</h5>
             <div class="form-inline">
               <div class="form-group">
-                <input type="text" class="form-control" id="inviteroomtxt">
-                <button class="btn btn-default" id="inviteroom">invite</button>
+                <input type="text" class="form-control" id="invitegrouptxt">
+                <button class="btn btn-default" id="invitegroup">invite</button>
               </div>
             </div>
-            <h5>Room Message</h5>
+            <h5>Group Message</h5>
             <div class="form-inline">
               <div class="form-group">
-                <input type="text" class="form-control" id="msgroom"> <button class="btn btn-default" id="sendroom">send</button>
+                <input type="text" class="form-control" id="msggroup"> <button class="btn btn-default" id="sendgroup">send</button>
               </div>
             </div>
           </div>
@@ -163,19 +163,19 @@
 <button type="button" class="btn btn-default" id="peer-@peerId@" onclick="setSendTo('@peerId@')">@peerId@</button>
 </script>
 
-<script type="tpl" id="room-tpl">
+<script type="tpl" id="group-tpl">
 
 
-<div class="panel panel-default room" id="room-container-@roomId@" data-room-id="@roomId@">
+<div class="panel panel-default group" id="group-container-@groupId@" data-group-id="@groupId@">
    <div class="panel-heading">
      <h4 class="panel-title">
-       <a data-toggle="collapse" data-parent="#allroom" href="#room-body-@roomId@" onclick="setCurrentRoom('@roomId@')">
-         @roomId@
+       <a data-toggle="collapse" data-parent="#allgroup" href="#group-body-@groupId@" onclick="setCurrentGroup('@groupId@')">
+         @groupId@
        </a>
        <button class="btn btn-default btn-sm leave" >leave</button>
      </h4>
    </div>
-   <div id="room-body-@roomId@" class="panel-collapse collapse">
+   <div id="group-body-@groupId@" class="panel-collapse collapse">
      <div class="panel-body">
 
        <div class="members">
@@ -186,8 +186,8 @@
 
 </script>
 
-<script type="tpl" id="room-member-tpl">
-<div class="btn-group room-member" id="room-member-@peerId@"  data-room-member-id="@peerId@" >
+<script type="tpl" id="group-member-tpl">
+<div class="btn-group group-member" id="group-member-@peerId@"  data-group-member-id="@peerId@" >
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     @peerId@ <span class="caret"></span>
   </button>
@@ -213,8 +213,7 @@
   var chat;
 
 
-  //用于 Room 用户获取，chat本身不依赖 AV
-  AV.initialize(appid,'ei9xtnhuh22yxfgigur6edc8b29ma19rwgajappxjgr9bj6d');
+
 
   // ---------------- 基本初始化 打开关闭 ----------------
   $('#new').click(function(){
@@ -249,24 +248,24 @@
         $('#peer-'+peers[i]).addClass('offline');
       }
     });
-    //room 相关监听
+    //group 相关监听
     chat.on('membersJoined',function(data){
       if(data.peerId == peerId){
 
       }
       data.roomPeerIds.forEach(function(id){
-        $('#room-container-'+data.roomId+ ' .members').append($('#room-member-tpl').html().replace(/@peerId@/g,id));
+        $('#group-container-'+data.roomId+ ' .members').append($('#group-member-tpl').html().replace(/@peerId@/g,id));
       });
 
       // console.log(data)
     });
 
     chat.on('joined',function(data){
-      if($('#allroom .room').length==0){
-        roomId = data.roomId;
+      if($('#allgroup .group').length==0){
+        groupId = data.roomId;
       }
-      var str = $('#room-tpl').html().replace(/@roomId@/g,data.roomId);
-      $('#allroom').append(str);
+      var str = $('#group-tpl').html().replace(/@groupId@/g,data.roomId);
+      $('#allgroup').append(str);
       //查询当前群组内的 成员
       var AVOSRealtimeGroups = AV.Object.extend("AVOSRealtimeGroups");
       var query = new AV.Query(AVOSRealtimeGroups);
@@ -275,7 +274,7 @@
           var members = obj.get('m');
           members.forEach(function(id){
             if(id!=peerId){
-              $('#room-container-'+data.roomId+ ' .members').append($('#room-member-tpl').html().replace(/@peerId@/g,id));
+              $('#group-container-'+data.roomId+ ' .members').append($('#group-member-tpl').html().replace(/@peerId@/g,id));
             }
           });
         },
@@ -286,14 +285,14 @@
       });
     });
     chat.on('left', function(data){
-      $('#room-container-'+data.roomId).remove();
+      $('#group-container-'+data.roomId).remove();
     });
     chat.on('membersLeft',function(data){
       if(data.peerId == peerId){
 
       }
       data.roomPeerIds.forEach(function(id){
-        $('#room-member-'+id).remove();
+        $('#group-member-'+id).remove();
       });
 
     })
@@ -376,55 +375,56 @@
     });
   });
 
-  //------------- room 相关 ----------------
-
-  var roomId ;
-  function setRoom(roomId){
-    $('#roomid').val(roomId);
+  //------------- group 相关 ----------------
+  //用于 Group 用户获取，chat本身不依赖 AV
+  AV.initialize(appid,'ei9xtnhuh22yxfgigur6edc8b29ma19rwgajappxjgr9bj6d');
+  var groupId ;
+  function setGroup(groupId){
+    $('#groupid').val(groupId);
   }
-  function setCurrentRoom(roomid){
-    roomId = roomid;
+  function setCurrentGroup(groupid){
+    groupId = groupid;
   }
-  $('#joinroom').click(function(){
-    chat.joinRoom($('#roomid').val()).then(function(data){
+  $('#joingroup').click(function(){
+    chat.joinGroup($('#groupid').val()).then(function(data){
 
       // console.log(data)
-      // $('#roomid').val(data.roomId);
+      // $('#groupid').val(data.roomId);
       // alert('joined')
     })
   });
   $(document).on('click','.leave', function(){
-    // var roomId = $(this).parents('.room').data('room-id');
-    chat.leaveRoom(roomId).then(function(data){
+    // var groupId = $(this).parents('.group').data('group-id');
+    chat.leaveGroup(groupId).then(function(data){
       console.log(data)
 
       // alert('joined')
     })
   });
-  $('#inviteroom').click(function(){
-    chat.inviteToRoom(roomId,$('#inviteroomtxt').val().split(',')).then(function(data){
+  $('#invitegroup').click(function(){
+    chat.inviteToGroup(groupId,$('#invitegrouptxt').val().split(',')).then(function(data){
 
       // alert('joined')
     })
   });
   $(document).on('click','.kick', function(){
-    var roomId = $(this).parents('.room').data('room-id');
-    var targetId = $(this).parents('.room-member').data('room-member-id');
-    chat.kickFromRoom(roomId,targetId).then(function(data){
+    var groupId = $(this).parents('.group').data('group-id');
+    var targetId = $(this).parents('.group-member').data('group-member-id');
+    chat.kickFromGroup(groupId,targetId).then(function(data){
       console.log(data)
-      // $('#roomid').val(data.roomId);
+      // $('#groupid').val(data.roomId);
       // alert('joined')
     })
   });
 
-  $('#sendroom').click(function(){
-    chat.sendToRoom($('#msgroom').val(),roomId).then(function(){
+  $('#sendgroup').click(function(){
+    chat.sendToGroup($('#msggroup').val(),groupId).then(function(){
       $('#msgsent').append(JSON.stringify({
-        msg: $('#msgroom').val(),
-        roomId: roomId
+        msg: $('#msggroup').val(),
+        groupId: groupId
       }));
       $('#msgsent').append('<br>');
-      $('#msgroom').val('');
+      $('#msggroup').val('');
       // $('#status').append('Msg Sended');
       // $('#status').append('<br>');
     },function(){
