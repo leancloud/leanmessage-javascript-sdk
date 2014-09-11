@@ -346,6 +346,9 @@
         return;
       }
       var str = $('#watcher-tpl').html().replace(/@peerId@/g,peers[i]);
+      if($('#allwatcher button').length<1){
+        setSendTo(peers[i])
+      }
       $('#allwatcher').append(str);
     }
   }

@@ -23,9 +23,9 @@ function WebClient(settings) {
   }
 
   var timers = [];
-  function auth(){
+  function auth(peerId, watchingPeer){
     return Promise.resolve({
-      watchingPeer: []
+      watchingPeer: watchingPeer||[]
     });
   }
   function initialize(settings) {
