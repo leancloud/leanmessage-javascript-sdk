@@ -85,6 +85,9 @@
           <div class="form-inline">
             <div class="form-group">
               <input type="text" class="form-control" id="msg">
+              <label>
+                <input type="checkbox" id="msg-transient"> transient
+              </label>
             </div>
             <button class="btn btn-default" id="sendbtn">
               send
@@ -142,6 +145,9 @@
               <div class="form-inline">
                 <div class="form-group">
                   <input type="text" class="form-control" id="msggroup">
+                  <label>
+                    <input type="checkbox" id="room-msg-transient"> transient
+                  </label>
                   <button class="btn btn-default" id="sendgroup">
                     send
                   </button>
@@ -384,7 +390,8 @@
   }
 
   $('#sendbtn').click(function() {
-    chat.send($('#msg').val(), toPeerId).then(function() {
+    var transient = $('#msg-transient').is(':checked');
+    chat.send($('#msg').val(), toPeerId, transient).then(function() {
       $('#msgsent').append(JSON.stringify({
         msg: $('#msg').val(),
         toPeerId: toPeerId
@@ -443,7 +450,9 @@
   });
 
   $('#sendgroup').click(function() {
-    chat.sendToGroup($('#msggroup').val(), groupId).then(function() {
+    var transient = $('#room-msg-transient').is(':checked');
+    chat.sendToGroup($('#msggroup').val(), groupId, transient).then(function() {
+
       $('#msgsent').append(JSON.stringify({
         msg: $('#msggroup').val(),
         groupId: groupId
