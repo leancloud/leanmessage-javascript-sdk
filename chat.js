@@ -41,10 +41,10 @@ function WebClient(settings) {
     _settings = settings || {};
     _waitCommands = [];
     _emitter = new EventEmitter();
-    keepAliveTimeout = settings.keepAlive  || 10000;
-    if(keepAliveTimeout > 10000){
-      keepAliveTimeout = 10000;
-    }
+    keepAliveTimeout = 60000;
+    // if(keepAliveTimeout > 60000){
+    //   keepAliveTimeout = 60000;
+    // }
     watchingPeer = [];
     // watchingPeer = [].concat(settings.watchingPeer);
     connectionStatus = "notconnected";
