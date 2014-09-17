@@ -4,11 +4,11 @@ XMLHttpRequest = typeof XMLHttpRequest === 'undefined' ? require("xmlhttprequest
 var WebSocket = require('ws');
 var Promise = require('es6-promise').Promise;
 var EventEmitter = require('events').EventEmitter;
-module.exports = WebClient;
+module.exports = AVClient;
 
-function WebClient(settings) {
-  if (this instanceof WebClient == false) {
-    return new WebClient(settings)
+function AVClient(settings) {
+  if (this instanceof AVClient == false) {
+    return new AVClient(settings)
   }
   var _emitter, _settings, _waitCommands, server, ws, keepAliveTimeout;
   var cmdMap = {
