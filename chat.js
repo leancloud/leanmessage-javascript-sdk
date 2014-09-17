@@ -157,9 +157,11 @@ function WebClient(settings) {
   function _keepAlive(){
     clearTimeout(_keepAlive.handle);
     _keepAlive.handle = setTimeout(function(){
-      ws.send('{}');
-      _timeout('{}');
-      _keepAlive();
+      if(ws.readyState == 1){
+        ws.send('{}');
+        _timeout('{}');
+        _keepAlive();
+      }
     },keepAliveTimeout);
   }
 
