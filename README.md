@@ -1,7 +1,30 @@
 
 ##  方法
+### new AVClient(settings)
+settings:{
+  appId: 引用ID,
+  peerId: 当前用户的PeerID,
+  auth: 私聊签名函数(当平台设置启动签名后，需要传递),
+  groupAuth: 群组聊天签名函数(当平台设置启动签名后，需要传递),
+  watchingPeerIds: (非必须)
+}
+具体签名函数 需要类似下面的示例格式，基于 Promise 的异步操作。
+
+```
+function auth(peerId, watchingPeerIds){
+  return Promise.resolve({
+    watchingPeerIds: watchingPeerIds||[]
+  });
+}
+function groupAuth(peerId, groupId, action, groupPeerIds){
+  return Promise.resolve({
+    groupPeerIds: groupPeerIds || []
+  });
+}
+```
+实例化一个 消息客户端
 ### open()
-打开链接，需要先 new
+打开链接，需要先执行上面的 new
 ### close()
 关闭链接
 ### send(msg, to, transient)
