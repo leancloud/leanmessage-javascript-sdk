@@ -14,6 +14,18 @@ settings:{
 
 ```
 function auth(peerId, watchingPeerIds){
+  // 类似
+  /*
+  return new Promise(resolve,reject){
+
+    //这里放ajax auth code
+    resolve({
+      watchingPeerIds: ajax返回值
+    });
+
+  }
+  */
+  //这里实现了一个空函数
   return Promise.resolve({
     watchingPeerIds: watchingPeerIds||[]
   });
@@ -23,6 +35,7 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
     groupPeerIds: groupPeerIds || []
   });
 }
+
 ```
 实例化一个 消息客户端
 ### open()
