@@ -118,7 +118,7 @@
             </div>
             <div class="col-md-6">
               <h5>
-                Join or Create group
+                Join or Create Group
               </h5>
               <div class="form-inline">
                 <div class="form-group">
@@ -241,10 +241,14 @@
   // ---------------- 基本初始化 打开关闭 ----------------
   $('#new').click(function() {
     peerId = $('#sender').val();
+    var watching = [];
+    if($('#watchingPeer').val()!=""){
+      watching = $('#watchingPeer').val().split(',');
+    }
     chat = new WebClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser' + Math.random(),
-      watchingPeer: $('#watchingPeer').val().split(',')
+      watchingPeer: watching
       // auth: auth
     });
 
@@ -423,6 +427,8 @@
       // console.log(data)
       // $('#groupid').val(data.roomId);
       // alert('joined')
+    },function(err){
+      console.log(err)
     })
   });
   $(document).on('click', '.leave', function() {

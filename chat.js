@@ -198,6 +198,9 @@ function WebClient(settings) {
         msg[k] = props[k];
       }
     }
+    if(!ws){
+      return Promise.reject('no connection');
+    }
     ws.send(JSON.stringify(msg));
     //wait
     var c = typeof op == 'undefined'?cmd : cmd+op;
@@ -234,9 +237,6 @@ function WebClient(settings) {
     // return then;
   }
   this.send = function(msg, to, transient) {
-    if (connectionStatus != 'connected') {
-      return Promise.reject('can not send msg while not connected');
-    }
     var obj = {
       'msg': msg,
       'toPeerIds': [].concat(to)
@@ -251,9 +251,6 @@ function WebClient(settings) {
     _emitter.on(name, func)
   };
   this.watch = function(peers) {
-    if(connectionStatus!='connected'){
-      return Promise.reject('can not add watchingPeer while not connected');
-    }
     return _settings.auth(_settings.peerId,[].concat(peers)).then(function(data){
       var watch = [].concat(data.watchingPeer);
       watch.forEach(function(v,k){
@@ -270,9 +267,6 @@ function WebClient(settings) {
     })
   }
   this.unwatch = function(peers) {
-    if(connectionStatus!='connected'){
-      return Promise.reject('can not add watchingPeer while not connected');
-    }
     peers.forEach(function(v,k){
       if(watchingPeer.indexOf(v)>-1){
         watchingPeer.splice(watchingPeer.indexOf(v),1);
@@ -283,9 +277,6 @@ function WebClient(settings) {
     });
   }
   this.getStatus = function(peers) {
-    if(connectionStatus!='connected'){
-     return  Promise.reject('can not add watchingPeer while not connected');
-    }
     return doCommand('session', 'query' ,{
       'sessionPeerIds': [].concat(peers)
     });
@@ -296,9 +287,6 @@ function WebClient(settings) {
     });
   }
   this.sendToGroup = function(msg, groupId, transient){
-    if (connectionStatus != 'connected') {
-      return Promise.reject('can not send msg while not connected');
-    }
     var obj = {
       'msg': msg,
       'roomId': groupId
