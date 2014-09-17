@@ -10,7 +10,7 @@ function WebClient(settings) {
   if (this instanceof WebClient == false) {
     return new WebClient(settings)
   }
-  var _emitter, _settings, _waitCommands, watchingPeer, server, ws, keepAliveTimeout;
+  var _emitter, _settings, _waitCommands, server, ws, keepAliveTimeout;
   var cmdMap = {
     'direct': 'ack',
     'sessionopen': 'sessionopened',
@@ -23,9 +23,9 @@ function WebClient(settings) {
   }
 
   var timers = [];
-  function auth(peerId, watchingPeer){
+  function auth(peerId, watchingPeerIds){
     return Promise.resolve({
-      watchingPeer: watchingPeer||[]
+      watchingPeerIds: watchingPeerIds||[]
     });
   }
   function groupAuth(peerId, groupId, action, groupPeerIds){
@@ -46,13 +46,13 @@ function WebClient(settings) {
     _settings = settings || {};
     _settings.auth = settings.auth || auth;
     _settings.groupAuth = settings.groupAuth || groupAuth;
+    _settings.watchingPeerIds = settings.watchingPeerIds || [];
     _waitCommands = [];
     _emitter = new EventEmitter();
     keepAliveTimeout = 60000;
     // if(keepAliveTimeout > 60000){
     //   keepAliveTimeout = 60000;
     // }
-    watchingPeer = [];
     // watchingPeer = [].concat(settings.watchingPeer);
   }
 
@@ -135,10 +135,10 @@ function WebClient(settings) {
   }
 
   function _openSession() {
-    return _settings.auth(_settings.peerId,_settings.watchingPeer).then(function(data){
-      watchingPeer = data.watchingPeer;
+    return _settings.auth(_settings.peerId,_settings.watchingPeerIds).then(function(data){
+      _settings.watchingPeerIds = data.watchingPeerIds;
       return doCommand('session','open',{
-        sessionPeerIds: data.watchingPeer,
+        sessionPeerIds: data.watchingPeerIds,
         s: data.s,
         t: data.t,
         n: data.n
@@ -260,10 +260,10 @@ function WebClient(settings) {
   };
   this.watch = function(peers) {
     return _settings.auth(_settings.peerId,[].concat(peers)).then(function(data){
-      var watch = [].concat(data.watchingPeer);
+      var watch = [].concat(data.watchingPeerIds);
       watch.forEach(function(v,k){
-        if(watchingPeer.indexOf(v)==-1){
-          watchingPeer.push(v);
+        if(_settings.watchingPeerIds.indexOf(v)==-1){
+          _settings.watchingPeerIds.push(v);
         }
       });
       return doCommand('session', 'add', {
@@ -276,8 +276,8 @@ function WebClient(settings) {
   }
   this.unwatch = function(peers) {
     peers.forEach(function(v,k){
-      if(watchingPeer.indexOf(v)>-1){
-        watchingPeer.splice(watchingPeer.indexOf(v),1);
+      if(_settings.watchingPeerIds.indexOf(v)>-1){
+        _settings.watchingPeerIds.splice(_settings.watchingPeerIds.indexOf(v),1);
       }
     });
     return doCommand('session', 'remove', {
