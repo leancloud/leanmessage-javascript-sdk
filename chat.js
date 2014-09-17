@@ -28,6 +28,11 @@ function WebClient(settings) {
       watchingPeer: watchingPeer||[]
     });
   }
+  function groupAuth(peerId, groupId, action, groupPeerIds){
+    return Promise.resolve({
+      groupPeerIds: groupPeerIds || []
+    });
+  }
   function initialize(settings) {
     if (!settings) throw new Error('settings')
     if (!settings.appId) throw new Error('settings.appId')
@@ -35,10 +40,12 @@ function WebClient(settings) {
     if (settings.auth && typeof settings.auth != 'function'){
       throw new Error('sesstings.auth')
     }
-    if(!settings.auth){
-      settings.auth = auth;
+    if (settings.groupAuth && typeof settings.groupAuth != 'function'){
+      throw new Error('sesstings.groupAuth')
     }
     _settings = settings || {};
+    _settings.auth = settings.auth || auth;
+    _settings.groupAuth = settings.groupAuth || groupAuth;
     _waitCommands = [];
     _emitter = new EventEmitter();
     keepAliveTimeout = 60000;
@@ -283,8 +290,10 @@ function WebClient(settings) {
     });
   }
   this.joinGroup = function(groupId) {
-    return doCommand('room', 'join', {
-      roomId: groupId
+    return _settings.groupAuth(_settings.peerId,groupId,'join','').then(function(data){
+      return doCommand('room', 'join', {
+        roomId: groupId
+      });
     });
   }
   this.sendToGroup = function(msg, groupId, transient){
@@ -298,15 +307,20 @@ function WebClient(settings) {
     return doCommand('direct',undefined,obj);
   }
   this.inviteToGroup= function(groupId, groupPeerIds){
-    return doCommand('room', 'invite', {
-      roomId: groupId,
-      roomPeerIds: [].concat(groupPeerIds)
+    return _settings.groupAuth(_settings.peerId,groupId,'invite','').then(function(data){
+      return doCommand('room', 'invite', {
+        roomId: groupId,
+        roomPeerIds: [].concat(data.groupPeerIds)
+      });
     });
+
   }
   this.kickFromGroup= function(groupId, groupPeerIds) {
-    return doCommand('room', 'kick', {
-      roomId: groupId,
-      roomPeerIds: [].concat(groupPeerIds)
+    return _settings.groupAuth(_settings.peerId,groupId,'kick','').then(function(data){
+      return doCommand('room', 'kick', {
+        roomId: groupId,
+        roomPeerIds: [].concat(groupPeerIds)
+      });
     });
   }
   this.leaveGroup = function(groupId) {
