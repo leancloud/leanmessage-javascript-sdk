@@ -307,16 +307,15 @@ function AVClient(settings) {
     return doCommand('direct',undefined,obj);
   }
   this.inviteToGroup= function(groupId, groupPeerIds){
-    return _settings.groupAuth(_settings.peerId,groupId,'invite','').then(function(data){
+    return _settings.groupAuth(_settings.peerId,groupId,'invite',groupPeerIds).then(function(data){
       return doCommand('room', 'invite', {
         roomId: groupId,
         roomPeerIds: [].concat(data.groupPeerIds)
       });
     });
-
   }
   this.kickFromGroup= function(groupId, groupPeerIds) {
-    return _settings.groupAuth(_settings.peerId,groupId,'kick','').then(function(data){
+    return _settings.groupAuth(_settings.peerId,groupId,'kick',groupPeerIds).then(function(data){
       return doCommand('room', 'kick', {
         roomId: groupId,
         roomPeerIds: [].concat(groupPeerIds)
