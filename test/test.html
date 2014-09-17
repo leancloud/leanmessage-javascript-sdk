@@ -404,7 +404,8 @@
       $('#msg').val('');
       // $('#status').append('Msg Sended');
       // $('#status').append('<br>');
-    }, function() {
+    }, function(err) {
+      console.log(err)
       alert("send failure!!!")
     });
   });
