@@ -1,6 +1,7 @@
 
 ##  方法
 ### new AVClient(settings)
+```
 settings:{
   appId: 引用ID,
   peerId: 当前用户的PeerID,
@@ -8,6 +9,7 @@ settings:{
   groupAuth: 群组聊天签名函数(当平台设置启动签名后，需要传递),
   watchingPeerIds: (非必须)
 }
+```
 具体签名函数 需要类似下面的示例格式，基于 Promise 的异步操作。
 
 ```
