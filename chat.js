@@ -10,7 +10,7 @@ function WebClient(settings) {
   if (this instanceof WebClient == false) {
     return new WebClient(settings)
   }
-  var _emitter, connectionStatus, _settings, _waitCommands, watchingPeer, server, ws, keepAliveTimeout;
+  var _emitter, _settings, _waitCommands, watchingPeer, server, ws, keepAliveTimeout;
   var cmdMap = {
     'direct': 'ack',
     'sessionopen': 'sessionopened',
@@ -47,7 +47,6 @@ function WebClient(settings) {
     // }
     watchingPeer = [];
     // watchingPeer = [].concat(settings.watchingPeer);
-    connectionStatus = "notconnected";
   }
 
   initialize(settings);
@@ -61,21 +60,16 @@ function WebClient(settings) {
     if (server && new Date() < server.expires) {
       return new Promise(function(resolve, reject) {
         ws = new WebSocket(server.server);
-        _timeout('connectopen',function(){ connectionStatus = 'openfailure'; reject();});
+        _timeout('connectopen',function(){ reject();});
         ws.onopen = function() {
           if(timers.length > 0){
             clearTimeout(timers.shift()[1]);
           }
-          connectionStatus = 'connected';
           resolve(server);
         };
         ws.onclose = function() {
           doClose();
           _emitter.emit('close');
-          // connectionStatus = 'closed';
-          // if (_waitCommands.length > 0 && _waitCommands[0][0] === 'close') {
-          //   _waitCommands.shift()[1]();
-          // }
         }
         ws.onmessage = function(message) {
           var data = JSON.parse(message.data);
@@ -171,7 +165,6 @@ function WebClient(settings) {
 
   function doClose(){
     ws.close();
-    connectionStatus = 'notconnected';
     clearTimeout(_keepAlive.handle);
     timers.forEach(function(v,i){
       clearTimeout(v[1]);
@@ -221,16 +214,17 @@ function WebClient(settings) {
   }
 
   this.open = function() {
-    if (connectionStatus == 'connecting') {
-      return Promise.reject('should not call open again while  already call open method');
-    } else if (connectionStatus == 'connected') {
+    // console.log(ws.readyState)
+    if(ws && ws.readyState == 0 ){
+      return Promise.reject(0);
+    }
+    if(ws && ws.readyState == 1) {
       return Promise.resolve();
     }
     timers.forEach(function(v,i){
       clearTimeout(v[1]);
     });
     timers = [];
-    connectionStatus = 'connecting';
     return _connect().then(function() {
       return _openSession();
     });
