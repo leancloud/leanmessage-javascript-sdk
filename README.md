@@ -39,12 +39,29 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 ```
 实例化一个 消息客户端
 ### open()
-打开链接，需要先执行上面的 new
+打开链接，需要先执行上面的 new,
+
+```
+ open().then(function(data){
+  //打开成功
+})
+```
+
+所有方法都会返回promise then,因为都是异步执行，这样可以确认成功失败。
 ### close()
 关闭链接
 ### send(msg, to, transient)
  发送私聊消息
  参数：msg:消息内容, to:发送目标 PeerId, transient（非必须):为true时代表无需离线，默认为支持离线发送。
+
+ ```
+ send().then(function(data){
+  //success full send callback
+  },function(err){
+  //error callback
+})
+```
+
 ### watch(peers)
 参数：peers:单个peerId 或数组。
 ### unwatch(peers)
