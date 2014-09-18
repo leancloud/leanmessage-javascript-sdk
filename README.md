@@ -52,7 +52,9 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 ### getStatus(peers)
 查询 peer 在线或离线状态。适应于非 watch 情况下。
 参数：peers:单个peerId 或数组。
-
+### on(name, func)
+监听时间
+参数：name:事件名称,func:事件处理函数
 ##  事件
 ### close
  链接关闭
