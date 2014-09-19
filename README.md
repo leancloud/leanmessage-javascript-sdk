@@ -3,7 +3,7 @@
 ### new AVClient(settings)
 ```
 settings:{
-  appId: 引用ID,
+  appId: 应用ID,
   peerId: 当前用户的PeerID,
   auth: 私聊签名函数(当平台设置启动签名后，需要传递),
   groupAuth: 群组聊天签名函数(当平台设置启动签名后，需要传递),
@@ -75,12 +75,14 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 ##  事件
 ### close
  链接关闭
-### online watcher
+### online
 上线
-### offline watcher
+当关注的人上线时触发
+### offline
 下线
+当关注的人下线时触发
 ### message
-收到消息
+收到消息时触发
 
 ## 群组方法
 ### joinGroup(groupId)
