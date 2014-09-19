@@ -154,6 +154,8 @@ function AVChatClient(settings) {
       if(reject){
         reject(name+'timeout');
       }
+      doClose();
+      // _emitter.emit('close');
       // if(name == '{}'){
       //   doClose();
       //   _emitter.emit('close');
