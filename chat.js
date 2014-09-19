@@ -4,11 +4,11 @@ XMLHttpRequest = typeof XMLHttpRequest === 'undefined' ? require("xmlhttprequest
 var WebSocket = require('ws');
 var Promise = require('es6-promise').Promise;
 var EventEmitter = require('events').EventEmitter;
-module.exports = AVClient;
+module.exports = AVChatClient;
 
-function AVClient(settings) {
-  if (this instanceof AVClient == false) {
-    return new AVClient(settings)
+function AVChatClient(settings) {
+  if (this instanceof AVChatClient == false) {
+    return new AVChatClient(settings)
   }
   var _emitter, _settings, _waitCommands, server, ws, keepAliveTimeout;
   var cmdMap = {

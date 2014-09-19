@@ -1,6 +1,6 @@
 
 ##  方法
-### new AVClient(settings)
+### new AVChatClient(settings)
 ```
 settings:{
   appId: 应用ID,

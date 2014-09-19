@@ -245,7 +245,7 @@
     if($('#watchingPeer').val()!=""){
       watching = $('#watchingPeer').val().split(',');
     }
-    chat = new AVClient({
+    chat = new AVChatClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser' + Math.random(),
       watchingPeerIds: watching
