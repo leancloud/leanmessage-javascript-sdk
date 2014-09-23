@@ -269,7 +269,7 @@ function AVChatClient(settings) {
         }
       });
       return doCommand('session', 'add', {
-        'sessionPeerIds': [].concat(data.watchingPeer),
+        'sessionPeerIds': [].concat(data.watchingPeerIds),
         s: data.s,
         t: data.t,
         n: data.n
