@@ -114,5 +114,6 @@ groupId:群组ID
 ## 运行DEMO
 直接启动一个 web 服务器 即可运行 demo。
 对于不支持 websocket的浏览器 参考demo做法。
+依赖   <a href="https://github.com/gimite/web-socket-js">web-socket-js</a> 可以用flash做 gateway
 
 
