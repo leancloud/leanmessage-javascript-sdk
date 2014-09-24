@@ -227,11 +227,20 @@
     </script>
     <script src="promise-1.0.0.min.js">
     </script>
-    <script src="../lib/chat.js">
+    <script src="/lib/chat.js">
     </script>
     <script src="https://cn.avoscloud.com/scripts/lib/av-0.4.1.min.js">
     </script>
+<!--[if lte IE 9]
+<script src="/lib/flash/swfobject.js"></script>
+<script src="/lib/flash/web_socket.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]
+<script src="/lib/es5-shim"></script>
+<![endif]-->
     <script>
+  WEB_SOCKET_SWF_LOCATION = "/lib/flash/WebSocketMain.swf";//用于兼容ie9以及不支持websocket的浏览器
   var appid = '9zcwm6xjbg3iajmky2xpef9wfxjwatqte1my06xdd83k26nc';
   var peerId = $('#sender').val() || 'testuser' + Math.random();
   var toPeerId;

@@ -111,4 +111,8 @@ groupId:群组ID
 ### left
 自己离开了群
 
+## 运行DEMO
+直接启动一个 web 服务器 即可运行 demo。
+对于不支持 websocket的浏览器 参考demo做法。
+
 
