@@ -221,26 +221,33 @@
         </ul>
       </div>
     </div>
-    <script src="https://code.jquery.com/jquery-2.1.1.js">
+    <script src="https://code.jquery.com/jquery-1.8.3.js">
     </script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">
     </script>
     <script src="promise-1.0.0.min.js">
     </script>
-    <script src="/lib/chat.js">
-    </script>
+
     <script src="https://cn.avoscloud.com/scripts/lib/av-0.4.1.min.js">
     </script>
-<!--[if lte IE 9]
-<script src="/lib/flash/swfobject.js"></script>
-<script src="/lib/flash/web_socket.js"></script>
-<![endif]-->
+    <script>
+    WEB_SOCKET_FORCE_FLASH = true;  //为测试flash，可强制设为true。否则自动选择
+    WEB_SOCKET_SWF_LOCATION = "../lib/flash/WebSocketMain.swf";//用于兼容ie9以及不支持websocket的浏览器
+    </script>
+
+<script src="../lib/flash/swfobject.js"></script>
+<script src="../lib/flash/web_socket.js"></script>
 
 <!--[if lt IE 9]
-<script src="/lib/es5-shim"></script>
+
+<script src="../lib/es5-shim.js"></script>
+
 <![endif]-->
-    <script>
-  WEB_SOCKET_SWF_LOCATION = "/lib/flash/WebSocketMain.swf";//用于兼容ie9以及不支持websocket的浏览器
+
+<script src="../lib/chat.js">
+</script>
+
+<script>
   var appid = '9zcwm6xjbg3iajmky2xpef9wfxjwatqte1my06xdd83k26nc';
   var peerId = $('#sender').val() || 'testuser' + Math.random();
   var toPeerId;

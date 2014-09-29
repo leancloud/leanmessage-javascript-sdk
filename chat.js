@@ -58,8 +58,15 @@ function AVChatClient(settings) {
 
   initialize(settings);
 
-  function _getServerInfo(appId) {
-    var url = 'http://router.g0.push.avoscloud.com/v1/route?appId=' + appId ;
+  function _getServerInfo(appId, secure) {
+    var  protocol = "http://";
+    if(typeof window !='undefined' && window.location&&window.location.protocol == 'https:'){
+      protocol = "https://";
+    }
+    var url = protocol+'router-g0-push.avoscloud.com/v1/route?appId=' + appId ;
+    if(secure){
+      url+='&secure=1';
+    }
     return get(url);
   }
 
@@ -126,8 +133,8 @@ function AVChatClient(settings) {
         };
       });
     } else {
-      return _getServerInfo(_settings.appId).then(function(result) {
-        server = JSON.parse(result);
+      return _getServerInfo(_settings.appId,_settings.secure).then(function(result) {
+        server = result;
         server.expires = Date.now() + server.ttl * 1000;
         return _connect();
       });
@@ -334,32 +341,36 @@ function AVChatClient(settings) {
 };
 
 
-
 function get(url) {
-  // Return a new promise.
-  return new Promise(function(resolve, reject) {
-    // Do the usual XHR stuff
-    var req = new XMLHttpRequest();
-    req.open('GET', url);
-    // req.withCredentials = false;
-    req.onload = function() {
-      // This is called even on 404 etc
-      // so check the status
-      if (req.status == 200) {
-        // Resolve the promise with the response text
-        resolve(req.responseText);
-      } else {
-        // Otherwise reject with the status text
-        // which will hopefully be a meaningful error
-        reject(Error(req.statusText));
-      }
-    };
-    // Handle network errors
-    req.onerror = function() {
-      reject(Error("Network Error"));
-    };
+  if (typeof jQuery !== 'undefined') {
+    return Promise.resolve(jQuery.getJSON.call(jQuery, url+='&cb=?'));
+  }else{
+    // Return a new promise.
+    return new Promise(function(resolve, reject) {
+      // Do the usual XHR stuff
+      var req = new XMLHttpRequest();
+      req.open('GET', url);
+      // req.withCredentials = false;
+      req.onload = function() {
+        // This is called even on 404 etc
+        // so check the status
+        if (req.status == 200) {
+          // Resolve the promise with the response text
+          resolve(JSON.parse(req.responseText));
+        } else {
+          // Otherwise reject with the status text
+          // which will hopefully be a meaningful error
+          reject(Error(req.statusText));
+        }
+      };
+      // Handle network errors
+      req.onerror = function() {
+        reject(Error("Network Error"));
+      };
 
-    // Make the request
-    req.send();
-  });
+      // Make the request
+      req.send();
+    });
+  }
+
 }
