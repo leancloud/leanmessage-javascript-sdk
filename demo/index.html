@@ -265,27 +265,31 @@
       appId: appid,
       peerId: $('#sender').val() || 'testuser' + Math.random(),
       watchingPeerIds: watching
-      // auth: auth
+      // auth: auth //当网站设置开启签名的时候需要
     });
 
     chat.on('close', function() {
+      //可以在这里进行重连 自行设置重连策略
       alert('connection closed')
       $('#connect-status').text('not connected');
       $('.online').removeClass('online').addClass('offline');
     });
     // --------------- chat 相关监听 ---------------
     chat.on('message', function(data) {
+      //收到消息时触发
       $('#msgreceive').append(JSON.stringify(data));
       $('#msgreceive').append('<br>');
       // console.log(data);
     });
     chat.on('online', function(peers) {
+      //watcher online
       for (var i = 0; i < peers.length; i++) {
         $('#peer-' + peers[i]).removeClass('offline');
         $('#peer-' + peers[i]).addClass('online');
       }
     });
     chat.on('offline', function(peers) {
+      //watcher offline
       for (var i = 0; i < peers.length; i++) {
         $('#peer-' + peers[i]).removeClass('online');
         $('#peer-' + peers[i]).addClass('offline');
