@@ -3,13 +3,7 @@ var appid = '28ferwlg9sncja6qw9ede6ruomjfed7lex4dljhlg80u23xl';
 var peerId = 'abc'
 
 
-var arr = ['a'  ]
-arr.forEach(function(peer,index){
-  var t = arr.slice(0);
-  t.splice(index,1);
-  console.log('peerIds ',t)
-  createChat(peer,t);
-})
+createChat('onePeer');
 function createChat(peerId,peers){
   var chat =  WebClient({
     appId: appid,

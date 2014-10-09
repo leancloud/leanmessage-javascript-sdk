@@ -122,5 +122,8 @@ groupId:群组ID
 2. es6-promise (非必须) 当需要签名认证的时候需要，是一个 promise 接口。
 3.  /lib/flash/swfobject.js web_socket.js (非必须) 用于跨浏览器支持 websocket.针对 不支持 websocket 的浏览器。 参照 <a href="https://github.com/gimite/web-socket-js">web-socket-js</a>
 
+## 浏览器 lib 生成
+
+browserify chat.js -o  lib/chat.js --exclude xmlhttprequest --exclude ws -s AVChatClient
 
 

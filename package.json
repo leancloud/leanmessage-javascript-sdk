@@ -2,11 +2,14 @@
   "name": "lean-cloud-chat",
   "version": "0.0.1",
   "description": "chat",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:avoscloud/realtime-messaging-jssdk.git"
+  },
   "main": "chat.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "sun changlong",
   "license": "BSD-2-Clause",
   "dependencies": {
     "es6-promise": "^1.0.0",

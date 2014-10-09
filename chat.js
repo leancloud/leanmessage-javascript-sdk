@@ -1,7 +1,7 @@
 // var klass = require('klass');
 // var ajax = require('ajax');
 XMLHttpRequest = typeof XMLHttpRequest === 'undefined' ? require("xmlhttprequest").XMLHttpRequest : XMLHttpRequest;
-var WebSocket = require('ws');
+WebSocket = typeof WebSocket === 'undefined' || WebSocket == null ?require('ws'): WebSocket;
 var Promise = require('es6-promise').Promise;
 var EventEmitter = require('events').EventEmitter;
 module.exports = AVChatClient;
