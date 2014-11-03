@@ -231,7 +231,7 @@
     <script src="https://cn.avoscloud.com/scripts/lib/av-0.4.1.min.js">
     </script>
     <script>
-    WEB_SOCKET_FORCE_FLASH = true;  //为测试flash，可强制设为true。否则自动选择
+    // WEB_SOCKET_FORCE_FLASH = true;  //为测试flash，可强制设为true。否则自动选择
     WEB_SOCKET_SWF_LOCATION = "../lib/flash/WebSocketMain.swf";//用于兼容ie9以及不支持websocket的浏览器
     </script>
 
@@ -247,7 +247,7 @@
 </script>
 
 <script>
-  var appid = '9zcwm6xjbg3iajmky2xpef9wfxjwatqte1my06xdd83k26nc';
+  var appid = 'pyon3kvufmleg773ahop2i7zy0tz2rfjx5bh82n7h5jzuwjg';
   var peerId = $('#sender').val() || 'testuser' + Math.random();
   var toPeerId;
   // var watchingPeer = $('#watchingPeer').val().split(',');
@@ -263,8 +263,11 @@
     chat = new AVChatClient({
       appId: appid,
       peerId: $('#sender').val() || 'testuser' + Math.random(),
+      secure:true,
+      // server:'us',
+      sp:true,
+      auth: auth, //当网站设置开启签名的时候需要
       watchingPeerIds: watching
-      // auth: auth //当网站设置开启签名的时候需要
     });
 
     chat.on('close', function() {
@@ -431,7 +434,7 @@
 
   //------------- group 相关 ----------------
    //用于 Group 用户获取，chat本身不依赖 AV
-  AV.initialize(appid, 'ei9xtnhuh22yxfgigur6edc8b29ma19rwgajappxjgr9bj6d');
+  AV.initialize(appid, 'ddb7x22rer13wc9dc9qb5i08p2r8i5zifjtuoom6bsts9glo');
   var groupId;
 
   function setGroup(groupId) {
@@ -503,17 +506,19 @@
   //认证
 
 
-  function auth(peerId, watchingPeers) {
+  function auth(peerId, watchingPeers, sp) {
     return new Promise(function(resolve, reject) {
       $.post('http://localhost:8080/sign', {
         self_id: peerId,
-        watch_ids: watchingPeers.join(':')
+        watch_ids: watchingPeers.join(':'),
+        sp:sp
       }).success(function(data) {
         console.log(data.watch_ids)
         resolve({
           n: data.nonce,
           t: data.timestamp,
           s: data.signature,
+          sp: sp,
           watchingPeerIds: data.watch_ids.split(':')
         });
       }).error(function(err) {
