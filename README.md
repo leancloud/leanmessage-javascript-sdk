@@ -1,3 +1,4 @@
+# LeanCloud Realtime Messaging JavaScript SDK
 
 ###  方法
 #### new AVChatClient(settings)
@@ -6,6 +7,8 @@ settings:{
   appId: 应用ID,
   peerId: 当前用户的PeerID,
   auth: 私聊签名函数(当平台设置启动签名后，需要传递),
+  server: (非必须)，'us' 为使用美国节点,
+  sp: (非必须)，设置为 true 时可以实现 非watch情况下发送信息，需要auth签名进行相关设置
   groupAuth: 群组聊天签名函数(当平台设置启动签名后，需要传递),
   watchingPeerIds: (非必须)
 }

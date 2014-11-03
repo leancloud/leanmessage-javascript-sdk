@@ -264,8 +264,8 @@
       appId: appid,
       peerId: $('#sender').val() || 'testuser' + Math.random(),
       secure:true,
-      // server:'us',
-      sp:true,
+      // server:'us',//使用美国节点
+      sp:true,//超级用户 不watch即可发送消息 需要配合 auth使用。
       auth: auth, //当网站设置开启签名的时候需要
       watchingPeerIds: watching
     });
@@ -519,7 +519,8 @@
           t: data.timestamp,
           s: data.signature,
           sp: sp,
-          watchingPeerIds: data.watch_ids.split(':')
+          watchingPeerIds: data.watch_ids.length > 0 ? data.watch_ids.split(':') : []
+
         });
       }).error(function(err) {
         reject(err);
