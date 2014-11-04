@@ -16,8 +16,9 @@ settings:{
 具体签名函数 需要类似下面的示例格式，基于 Promise 的异步操作。
 
 ```
-function auth(peerId, watchingPeerIds){
+function auth(peerId, watchingPeerIds, sp){
   // 类似
+  // 参数 sp : Boolean 类型，为超级用户时为 true，即不需要watch即可发送信息 。
   /*
   return new Promise(resolve,reject){
 
