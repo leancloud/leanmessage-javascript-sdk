@@ -1,6 +1,6 @@
 # LeanCloud Realtime Messaging JavaScript SDK
 
-## 在使用此 SDk 之前需要先熟悉 [实时消息基础概念](https://leancloud.cn/docs/realtime.html)
+## 在使用此 SDK 之前需要先熟悉 [实时消息基础概念](https://leancloud.cn/docs/realtime.html)
 
 ###  方法
 #### new AVChatClient(settings)
