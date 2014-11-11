@@ -22,14 +22,14 @@ function auth(peerId, watchingPeerIds, sp){
   // 类似
   // 参数 sp : Boolean 类型，为超级用户时为 true，即不需要watch即可发送信息 。
   /*
-  return new Promise(resolve,reject){
+  return new Promise(function(resolve,reject){
 
     //这里放ajax auth code
     resolve({
       watchingPeerIds: ajax返回值
     });
 
-  }
+  });
   */
   //这里实现了一个空函数
   return Promise.resolve({
