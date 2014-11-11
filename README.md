@@ -130,7 +130,7 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 
 - `groupId`：群组 ID，创建时无需传递。
 
-### sendToGroup(msg, groupId, transient)
+### `sendToGroup(msg, groupId, transient)`
 
 发送消息到指定群组
 
@@ -138,21 +138,21 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 - `grouipId`：群组 ID
 - `transient`（非必须)：为 `true` 时代表无需离线，默认为支持离线发送
 
-### inviteToGroup(groupId, groupPeerIds)
+### `inviteToGroup(groupId, groupPeerIds)`
 
 邀请加入群组
 
 - `groupId`：群组 ID,
 - `groupPeerIds`：单个或数组群组 ID
 
-### kickFromGroup(groupId, groupPeerIds)
+### `kickFromGroup(groupId, groupPeerIds)`
 
 踢出群组
 
 - `groupId`：群组 ID
 - `groupPeerIds`：单个或数组群组 ID
 
-### leaveGroup(groupId)
+### `leaveGroup(groupId)`
 
 离开群组
 
@@ -176,7 +176,7 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 
 自己离开了群
 
-## 运行DEMO
+## 运行 Demo
 
 直接启动一个 web 服务器 即可运行 demo。对于不支持 WebSocket 的浏览器 参考 demo 做法。依赖 <a href="https://github.com/gimite/web-socket-js">web-socket-js</a> 可以用 Flash 做 gateway
 
