@@ -16,6 +16,7 @@ settings:{
 }
 ```
 具体签名函数 需要类似下面的示例格式，基于 Promise 的异步操作。
+[签名函数示例](https://gist.github.com/sunchanglong/acd42f99d26b05203d6c)
 
 ```
 function auth(peerId, watchingPeerIds, sp){

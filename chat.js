@@ -305,9 +305,12 @@ function AVChatClient(settings) {
     });
   }
   this.joinGroup = function(groupId) {
-    return _settings.groupAuth(_settings.peerId,groupId,'join','').then(function(data){
+    return _settings.groupAuth(_settings.peerId,groupId,'join',[]).then(function(data){
       return doCommand('room', 'join', {
-        roomId: groupId
+        roomId: groupId,
+        s: data.s,
+        t: data.t,
+        n: data.n
       });
     });
   }
@@ -322,18 +325,24 @@ function AVChatClient(settings) {
     return doCommand('direct',undefined,obj);
   }
   this.inviteToGroup= function(groupId, groupPeerIds){
-    return _settings.groupAuth(_settings.peerId,groupId,'invite',groupPeerIds).then(function(data){
+    return _settings.groupAuth(_settings.peerId,groupId,'invite',[].concat(groupPeerIds)).then(function(data){
       return doCommand('room', 'invite', {
         roomId: groupId,
-        roomPeerIds: [].concat(data.groupPeerIds)
+        roomPeerIds: [].concat(data.groupPeerIds),
+        s: data.s,
+        t: data.t,
+        n: data.n
       });
     });
   }
   this.kickFromGroup= function(groupId, groupPeerIds) {
-    return _settings.groupAuth(_settings.peerId,groupId,'kick',groupPeerIds).then(function(data){
+    return _settings.groupAuth(_settings.peerId,groupId,'kick',[].concat(groupPeerIds)).then(function(data){
       return doCommand('room', 'kick', {
         roomId: groupId,
-        roomPeerIds: [].concat(groupPeerIds)
+        roomPeerIds: [].concat(groupPeerIds),
+        s: data.s,
+        t: data.t,
+        n: data.n
       });
     });
   }
