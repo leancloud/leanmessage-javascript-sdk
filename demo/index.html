@@ -521,7 +521,7 @@
           t: data.timestamp,
           s: data.signature,
           sp: sp,
-          watchingPeerIds: data.watch_ids.length > 0 ? data.watch_ids.split(':') : []
+          watchingPeerIds:  data.watch_ids
 
         });
       }).error(function(err) {

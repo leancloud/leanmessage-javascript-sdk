@@ -55,7 +55,7 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 打开链接，需要先执行上面的 new 构造函数,
 
 ```javascript
- chat.open().then(function(data){
+chat.open().then(function(data){
   //打开成功
 })
 ```
@@ -75,7 +75,7 @@ function groupAuth(peerId, groupId, action, groupPeerIds){
 - `transient`（非必须)：为 `true` 时代表无需离线，默认为支持离线发送
 
 ```javascript
- chat.send().then(function(data){
+chat.send().then(function(data){
   //success full send callback
   },function(err){
   //error callback
