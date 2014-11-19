@@ -220,7 +220,7 @@ browserify chat.js  --exclude xmlhttprequest --exclude ws -s AVChatClient  | ugl
 
 ## node 环境
 
-可以单独作为一个 npm package 使用。如果有服务端需求，比如机器人发消息，可以放在我们的云代码环境里使用。
+可以单独作为一个 npm package 使用。如果有服务端需求，比如机器人发消息，这个暂时需要放在自己的服务器上。
 
 ```shell
 npm install lean-cloud-chat
