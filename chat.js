@@ -86,9 +86,9 @@ function AVChatClient(settings) {
           }
           resolve(server);
         };
-        ws.onclose = function() {
+        ws.onclose = function(e) {
           doClose();
-          _emitter.emit('close');
+          _emitter.emit('close', e);
         }
         ws.onmessage = function(message) {
           var data = JSON.parse(message.data);
