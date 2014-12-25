@@ -267,14 +267,15 @@
       secure:true,
       // server:'us',//使用美国节点
       // sp:true,//超级用户 不watch即可发送消息 需要配合 auth使用。
-      auth: auth, //当网站设置开启签名的时候需要
-      groupAuth: groupAuth,
+      // auth: auth, //当网站设置开启签名的时候需要
+      // groupAuth: groupAuth,
       watchingPeerIds: watching
     });
 
-    chat.on('close', function() {
+    chat.on('close', function(event) {
       //可以在这里进行重连 自行设置重连策略
-      alert('connection closed')
+      alert('connection closed');
+      console.log(event);
       $('#connect-status').text('not connected');
       $('.online').removeClass('online').addClass('offline');
     });
