@@ -2,6 +2,8 @@
 
 在使用此 SDK 之前需要先熟悉 [实时消息基础概念](https://leancloud.cn/docs/realtime.html)
 
+[查看 Changelog](https://download.avoscloud.com/sdk/jschat/changelog.txt)
+
 ##  方法
 *除构造函数外，所有方法都会返回 promise ，因为都是异步执行，通过监听  `.then(successFunc, errorFunc)` 可以处理成功失败。*
 
