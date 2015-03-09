@@ -4,6 +4,8 @@
 
 [查看 Changelog](https://download.avoscloud.com/sdk/jschat/changelog.txt)
 
+目前我们已经开发 [JavaScript Realtime SDK 2.0 版本](http://github.com/leancloud/js-realtime-sdk/)，欢迎试用。
+
 ##  方法
 *除构造函数外，所有方法都会返回 promise ，因为都是异步执行，通过监听  `.then(successFunc, errorFunc)` 可以处理成功失败。*
 
@@ -204,6 +206,15 @@ chat.on('message', function(data) {
 ## 运行 Demo
 
 直接启动一个 web 服务器 即可运行 demo。
+
+### Demo 使用方法及步骤
+
+1. 您可以使用同一个浏览器的两个 tab 标签来测试，打开一个 tab，运行 demo;
+2. 首先输入一个你自定义的 peerId 比如 test123。再输入一个 watchingPeer，同样是自定义的字符串即可，比如 test234；
+3. 再点击「new Client」按钮，然后点击「open」按钮来建立服务，显示由「not connect」变为「connected」时，表示连接成功；
+4. 「Message to test234」部分，可以给 test234 发送实时消息；
+5. 打开另一个 tab，peerId 填入 test234，注意是「test234」，也就是说，这个 tab 扮演 test234 这个终端。watchingPeer 填入 test123，然后按照步骤 3 来操作，即点击「new Client」按钮，然后点击「open」按钮建立连接；
+6. 两个 tab 间可以互相收到消息。Watching Peers 下面会列出已经 watch 的 peerId 状态，绿色竖线代表「在线」。
 
 ## 浏览器端环境依赖
 
