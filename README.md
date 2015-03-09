@@ -86,7 +86,7 @@ chat.send().then(function(data){
 
 ### `watch(peers)`
 
-关注 PeerId，以便给对方发消息，接受对方上下线状态。
+关注 PeerId，接受对方上下线状态。在开启签名的应用中，需要首先 watch 对方才能发送消息。
 
 - `peers`：单个 `peerId` 或数组
 
