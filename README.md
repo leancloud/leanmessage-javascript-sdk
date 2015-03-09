@@ -207,7 +207,7 @@ chat.on('message', function(data) {
 
 直接启动一个 web 服务器 即可运行 demo。
 
-### 方法及步骤
+### Demo 试用方法及步骤
 
 1. 您可以使用同一个浏览器的两个 tab 标签来测试，打开一个 tab，运行 demo;
 2. 首先输入一个你自定义的 peerId 比如 test123。再输入一个 watchingPeer，同样是自定义的字符串即可，比如 test234；
