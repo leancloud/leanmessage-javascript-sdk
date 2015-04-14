@@ -1,5 +1,7 @@
 # LeanMessage JavaScript SDK
 
+## 该版本实时通信 SDK 为 1.x 版本，目前已经处于维护状态，如果想要使用 LeanCloud JavaScript 实时通信 SDK 请参考我们的文档 —— 「[JavaScript 实时通信开发指南](http://leancloud.cn/docs/js_realtime.html)」
+
 在使用此 SDK 之前需要先熟悉 [实时消息基础概念](https://leancloud.cn/docs/realtime.html)
 
 [查看 Changelog](https://download.avoscloud.com/sdk/jschat/changelog.txt)
